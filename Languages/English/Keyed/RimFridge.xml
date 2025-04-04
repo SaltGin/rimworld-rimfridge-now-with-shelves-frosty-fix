@@ -8,5 +8,13 @@
 	<RimFridge.ToggleGlowColorDesc>Toggle the color of the glow between normal and dark light.</RimFridge.ToggleGlowColorDesc>
 	<RimFridge.Compatibility>Compatibility</RimFridge.Compatibility>
 	<RimFridge.ForceApplicationOfThesePatches>Force the application of these patches for other versions of RimFridge.</RimFridge.ForceApplicationOfThesePatches>
+	<RimFridge.ModifyBasePowerRequirement>Modify Base Power Requirement</RimFridge.ModifyBasePowerRequirement>
+	<RimFridge.Apply>Apply</RimFridge.Apply>
+	<RimFridge.ApplyDesc>New Power Usage = Input Value * Original Power Usage</RimFridge.ApplyDesc>
+	<RimFridge.BasePowerFactor>Base Power Factor</RimFridge.BasePowerFactor>
+	<RimFridge.CannotBeLessThanOrEqualToZero>{0} cannot be less than or equal to 0.</RimFridge.CannotBeLessThanOrEqualToZero>
+	<RimFridge.UnableToParseToANumber>Unable to parse {0} to a number.</RimFridge.UnableToParseToANumber>
+	<RimFridge.NewPowerFactorApplied>New Power Factor Applied</RimFridge.NewPowerFactorApplied>
+	<RimFridge.ActAsTradeBeacon>Act as Trade Beacon</RimFridge.ActAsTradeBeacon>
 </LanguageData>
 

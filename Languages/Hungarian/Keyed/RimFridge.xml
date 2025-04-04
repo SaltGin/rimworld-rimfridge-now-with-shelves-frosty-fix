@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
 
-	<RimFridge.TargetTemperature>Cél Hőmérséklet</RimFridge.TargetTemperature>
+	<RimFridge.TargetTemperature>Célhőmérséklet</RimFridge.TargetTemperature>
 	<RimFridge.CurrentTemperature>Jelenlegi Hőmérséklet</RimFridge.CurrentTemperature>
 	<RimFridge.Power>Energia</RimFridge.Power>
-	<RimFridge.RenameTheRefrigerator>Hüttő Átnevezése</RimFridge.RenameTheRefrigerator>
-	
+	<RimFridge.RenameTheRefrigerator>Hűtőszekrény Átnevezése</RimFridge.RenameTheRefrigerator>
+	<RimFridge.ToggleGlowColor>Fény Színének Váltása</RimFridge.ToggleGlowColor>
+	<RimFridge.ToggleGlowColorDesc>Váltás a normál és a sötét fény között.</RimFridge.ToggleGlowColorDesc>
+	<RimFridge.Compatibility>Kompatibilitás</RimFridge.Compatibility>
+	<RimFridge.ForceApplicationOfThesePatches>Ezeknek a javításoknak az alkalmazását kényszeríti a RimFridge más verzióira.</RimFridge.ForceApplicationOfThesePatches>
+	<RimFridge.ModifyBasePowerRequirement>Alap Energiaigény Módosítása</RimFridge.ModifyBasePowerRequirement>
+	<RimFridge.Apply>Alkalmaz</RimFridge.Apply>
+	<RimFridge.ApplyDesc>Új energiafogyasztás = Bemeneti érték * Eredeti energiafogyasztás</RimFridge.ApplyDesc>
+	<RimFridge.BasePowerFactor>Alap Energia Faktor</RimFridge.BasePowerFactor>
+	<RimFridge.CannotBeLessThanOrEqualToZero>{0} nem lehet kisebb vagy egyenlő 0-val.</RimFridge.CannotBeLessThanOrEqualToZero>
+	<RimFridge.UnableToParseToANumber>{0} nem alakítható számmá.</RimFridge.UnableToParseToANumber>
+	<RimFridge.NewPowerFactorApplied>Új Energia Faktor Alkalmazva</RimFridge.NewPowerFactorApplied>
+	<RimFridge.ActAsTradeBeacon>Kereskedelmi Jeladóként Működik</RimFridge.ActAsTradeBeacon>
+
 </LanguageData>
 

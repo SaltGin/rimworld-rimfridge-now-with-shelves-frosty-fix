@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
 
-  <RimFridge.TargetTemperature>Docelowa temperatura</RimFridge.TargetTemperature>
+  <RimFridge.TargetTemperature>Temperatura docelowa</RimFridge.TargetTemperature>
   <RimFridge.CurrentTemperature>Aktualna temperatura</RimFridge.CurrentTemperature>
-  <RimFridge.Power>Moc</RimFridge.Power>
-  <RimFridge.RenameTheRefrigerator>Zmień nazwę chłodziarki</RimFridge.RenameTheRefrigerator>
+  <RimFridge.Power>Zasilanie</RimFridge.Power>
+  <RimFridge.RenameTheRefrigerator>Zmień nazwę lodówki</RimFridge.RenameTheRefrigerator>
+  <RimFridge.ToggleGlowColor>Przełącz kolor podświetlenia</RimFridge.ToggleGlowColor>
+  <RimFridge.ToggleGlowColorDesc>Przełącz kolor podświetlenia między normalnym a ciemnym światłem.</RimFridge.ToggleGlowColorDesc>
+  <RimFridge.Compatibility>Kompatybilność</RimFridge.Compatibility>
+  <RimFridge.ForceApplicationOfThesePatches>Wymuś zastosowanie tych poprawek dla innych wersji RimFridge.</RimFridge.ForceApplicationOfThesePatches>
+  <RimFridge.ModifyBasePowerRequirement>Modyfikuj podstawowe zapotrzebowanie na energię</RimFridge.ModifyBasePowerRequirement>
+  <RimFridge.Apply>Zastosuj</RimFridge.Apply>
+  <RimFridge.ApplyDesc>Nowe zużycie energii = Wprowadzona wartość × Oryginalne zużycie energii</RimFridge.ApplyDesc>
+  <RimFridge.BasePowerFactor>Współczynnik podstawowego zużycia energii</RimFridge.BasePowerFactor>
+  <RimFridge.CannotBeLessThanOrEqualToZero>{0} nie może być mniejsze lub równe 0.</RimFridge.CannotBeLessThanOrEqualToZero>
+  <RimFridge.UnableToParseToANumber>Nie można przekształcić {0} na liczbę.</RimFridge.UnableToParseToANumber>
+  <RimFridge.NewPowerFactorApplied>Zastosowano nowy współczynnik zużycia energii</RimFridge.NewPowerFactorApplied>
+  <RimFridge.ActAsTradeBeacon>Działaj jako latarnia handlowa</RimFridge.ActAsTradeBeacon>
 
 </LanguageData>
 

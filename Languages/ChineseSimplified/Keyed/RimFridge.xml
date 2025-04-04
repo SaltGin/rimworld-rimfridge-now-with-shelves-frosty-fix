@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-  <RimFridge.TargetTemperature>目前温度</RimFridge.TargetTemperature>
+  <RimFridge.TargetTemperature>目标温度</RimFridge.TargetTemperature>
   <RimFridge.CurrentTemperature>当前温度</RimFridge.CurrentTemperature>
   <RimFridge.Power>功率</RimFridge.Power>
   <RimFridge.RenameTheRefrigerator>重命名此冰箱</RimFridge.RenameTheRefrigerator>
-
+  <!-- EN: Toggle Glow Color -->
+  <RimFridge.ToggleGlowColor>切换发光颜色</RimFridge.ToggleGlowColor>
+  <!-- EN: Toggle the color of the glow between normal and dark light. -->
+  <RimFridge.ToggleGlowColorDesc>在正常光和暗光之间切换发光颜色。</RimFridge.ToggleGlowColorDesc>
+  <!-- EN: Compatibility -->
+  <RimFridge.Compatibility>兼容性</RimFridge.Compatibility>
+  <!-- EN: Force the application of these patches for other versions of RimFridge. -->
+  <RimFridge.ForceApplicationOfThesePatches>强制为其他版本的 RimFridge 应用这些补丁。</RimFridge.ForceApplicationOfThesePatches>
+  <RimFridge.ModifyBasePowerRequirement>修改基本功率要求</RimFridge.ModifyBasePowerRequirement>
+  <RimFridge.Apply>应用</RimFridge.Apply>
+  <RimFridge.ApplyDesc>新电力消耗 = 输入值 * 原电力消耗</RimFridge.ApplyDesc>
+  <RimFridge.BasePowerFactor>基本功率因数</RimFridge.BasePowerFactor>
+  <RimFridge.CannotBeLessThanOrEqualToZero>{0} 不能小于或等于0。</RimFridge.CannotBeLessThanOrEqualToZero>
+  <RimFridge.UnableToParseToANumber>无法将 {0} 解析为一个数字。</RimFridge.UnableToParseToANumber>
+  <RimFridge.NewPowerFactorApplied>新的功率因数已应用</RimFridge.NewPowerFactorApplied>
+  <RimFridge.ActAsTradeBeacon>充当贸易标志</RimFridge.ActAsTradeBeacon>
 </LanguageData>
 
 

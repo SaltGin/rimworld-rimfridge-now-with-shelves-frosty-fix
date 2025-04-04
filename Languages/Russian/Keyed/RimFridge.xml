@@ -1,18 +1,26 @@
-<<<<<<< HEAD
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-  <RimFridge.TargetTemperature>Целевая температура</RimFridge.TargetTemperature>
-  <RimFridge.CurrentTemperature>Текущая температура</RimFridge.CurrentTemperature>
-  <RimFridge.Power>Питание</RimFridge.Power>
-  <RimFridge.RenameTheRefrigerator>Переименовать склад</RimFridge.RenameTheRefrigerator>
+    <RimFridge.TargetTemperature>Целевая температура</RimFridge.TargetTemperature>
+    <RimFridge.CurrentTemperature>Текущая температура</RimFridge.CurrentTemperature>
+    <RimFridge.Power>Энергия</RimFridge.Power>
+    <RimFridge.RenameTheRefrigerator>Переименовать холодильник</RimFridge.RenameTheRefrigerator>
+    <RimFridge.ToggleGlowColor>Переключить цвет свечения</RimFridge.ToggleGlowColor>
+    <RimFridge.ToggleGlowColorDesc>Переключение цвета свечения между обычным и темным светом.
+    </RimFridge.ToggleGlowColorDesc>
+    <RimFridge.Compatibility>Совместимость</RimFridge.Compatibility>
+    <RimFridge.ForceApplicationOfThesePatches>Принудительное применение этих патчей для других версий RimFridge.
+    </RimFridge.ForceApplicationOfThesePatches>
+    <RimFridge.ModifyBasePowerRequirement>Изменить базовое потребление энергии</RimFridge.ModifyBasePowerRequirement>
+    <RimFridge.Apply>Применить</RimFridge.Apply>
+    <RimFridge.ApplyDesc>Новое потребление энергии = Введенное значение × Исходное потребление энергии
+    </RimFridge.ApplyDesc>
+    <RimFridge.BasePowerFactor>Базовый коэффициент энергии</RimFridge.BasePowerFactor>
+    <RimFridge.CannotBeLessThanOrEqualToZero>{0} не может быть меньше или равно 0.
+    </RimFridge.CannotBeLessThanOrEqualToZero>
+    <RimFridge.UnableToParseToANumber>Не удалось преобразовать {0} в число.</RimFridge.UnableToParseToANumber>
+    <RimFridge.NewPowerFactorApplied>Новый коэффициент энергии применен</RimFridge.NewPowerFactorApplied>
+    <RimFridge.ActAsTradeBeacon>Работать как торговый маяк</RimFridge.ActAsTradeBeacon>
+
 </LanguageData>
-=======
-﻿<?xml version="1.0" encoding="utf-8"?>
-<LanguageData>
-  <RimFridge.TargetTemperature>Целевая температура</RimFridge.TargetTemperature>
-  <RimFridge.CurrentTemperature>Текущая температура</RimFridge.CurrentTemperature>
-  <RimFridge.Power>Питание</RimFridge.Power>
-  <RimFridge.RenameTheRefrigerator>Переименовать склад</RimFridge.RenameTheRefrigerator>
-</LanguageData>
->>>>>>> 37bf17c653b82e00b8091776f28304c296740341
+
 

@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-  <RimFridge.TargetTemperature>目標の温度</RimFridge.TargetTemperature>
+  <RimFridge.TargetTemperature>目標温度</RimFridge.TargetTemperature>
   <RimFridge.CurrentTemperature>現在の温度</RimFridge.CurrentTemperature>
-  <RimFridge.Power>電源</RimFridge.Power>
+  <RimFridge.Power>電力</RimFridge.Power>
   <RimFridge.RenameTheRefrigerator>冷蔵庫の名前を変更</RimFridge.RenameTheRefrigerator>
-  <RimFridge.ToggleGlowColor>照明色切替</RimFridge.ToggleGlowColor>
-  <RimFridge.ToggleGlowColorDesc>照明の色を通常の照明光と暗い照明光で切り替えます.</RimFridge.ToggleGlowColorDesc>
+  <RimFridge.ToggleGlowColor>発光色の切り替え</RimFridge.ToggleGlowColor>
+  <RimFridge.ToggleGlowColorDesc>発光の色を通常の光と暗い光の間で切り替えます。</RimFridge.ToggleGlowColorDesc>
+  <RimFridge.Compatibility>互換性</RimFridge.Compatibility>
+  <RimFridge.ForceApplicationOfThesePatches>RimFridge の他のバージョンにこれらのパッチの適用を強制する</RimFridge.ForceApplicationOfThesePatches>
+  <RimFridge.ModifyBasePowerRequirement>基本消費電力の変更</RimFridge.ModifyBasePowerRequirement>
+  <RimFridge.Apply>適用</RimFridge.Apply>
+  <RimFridge.ApplyDesc>新しい消費電力 = 入力値 × 元の消費電力</RimFridge.ApplyDesc>
+  <RimFridge.BasePowerFactor>基本消費電力係数</RimFridge.BasePowerFactor>
+  <RimFridge.CannotBeLessThanOrEqualToZero>{0} は 0 以下にはできません。</RimFridge.CannotBeLessThanOrEqualToZero>
+  <RimFridge.UnableToParseToANumber>{0} を数値として解析できません。</RimFridge.UnableToParseToANumber>
+  <RimFridge.NewPowerFactorApplied>新しい消費電力係数が適用されました</RimFridge.NewPowerFactorApplied>
+  <RimFridge.ActAsTradeBeacon>交易ビーコンとして機能</RimFridge.ActAsTradeBeacon>
 
 </LanguageData>
 

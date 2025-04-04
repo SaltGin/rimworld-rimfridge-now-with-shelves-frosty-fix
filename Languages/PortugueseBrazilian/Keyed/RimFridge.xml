@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-  <RimFridge.TargetTemperature>Temperatura desejada</RimFridge.TargetTemperature>
-  <RimFridge.CurrentTemperature>Temperatura atual</RimFridge.CurrentTemperature>
+  <RimFridge.TargetTemperature>Temperatura Alvo</RimFridge.TargetTemperature>
+  <RimFridge.CurrentTemperature>Temperatura Atual</RimFridge.CurrentTemperature>
   <RimFridge.Power>Energia</RimFridge.Power>
-  <RimFridge.RenameTheRefrigerator>Rename The Refrigerator</RimFridge.RenameTheRefrigerator>
+  <RimFridge.RenameTheRefrigerator>Renomear o Refrigerador</RimFridge.RenameTheRefrigerator>
+  <RimFridge.ToggleGlowColor>Alternar Cor do Brilho</RimFridge.ToggleGlowColor>
+  <RimFridge.ToggleGlowColorDesc>Altere a cor do brilho entre luz normal e luz escura.</RimFridge.ToggleGlowColorDesc>
+  <RimFridge.Compatibility>Compatibilidade</RimFridge.Compatibility>
+  <RimFridge.ForceApplicationOfThesePatches>Forçar a aplicação desses patches para outras versões do RimFridge.</RimFridge.ForceApplicationOfThesePatches>
+  <RimFridge.ModifyBasePowerRequirement>Modificar Requisito Básico de Energia</RimFridge.ModifyBasePowerRequirement>
+  <RimFridge.Apply>Aplicar</RimFridge.Apply>
+  <RimFridge.ApplyDesc>Novo Consumo de Energia = Valor Inserido × Consumo de Energia Original</RimFridge.ApplyDesc>
+  <RimFridge.BasePowerFactor>Fator de Energia Base</RimFridge.BasePowerFactor>
+  <RimFridge.CannotBeLessThanOrEqualToZero>{0} não pode ser menor ou igual a 0.</RimFridge.CannotBeLessThanOrEqualToZero>
+  <RimFridge.UnableToParseToANumber>Não foi possível converter {0} para um número.</RimFridge.UnableToParseToANumber>
+  <RimFridge.NewPowerFactorApplied>Novo Fator de Energia Aplicado</RimFridge.NewPowerFactorApplied>
+  <RimFridge.ActAsTradeBeacon>Atuar como Sinalizador de Comércio</RimFridge.ActAsTradeBeacon>
 
 </LanguageData>
 

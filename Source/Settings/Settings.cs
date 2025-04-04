@@ -62,15 +62,16 @@ namespace RimFridge
 
 			GUI.BeginGroup(new Rect(0, 60, 800, 600));
 			Text.Font = GameFont.Small;
-			Widgets.Label(new Rect(0, 40, 300, 20), "Modify Base Power Requirement" + ":");
-			Settings.PowerFactor.AsString = Widgets.TextField(new Rect(320, 40, 100, 20), Settings.PowerFactor.AsString);
+			Widgets.Label(new Rect(0, 20, 300, 20), "RimFridge.ModifyBasePowerRequirement".Translate() + ":");
+			Settings.PowerFactor.AsString = Widgets.TextField(new Rect(300, 20, 100, 20), Settings.PowerFactor.AsString);
 
-			if (Widgets.ButtonText(new Rect(320, 65, 100, 20), "Apply"))
+			var applyRect = new Rect(405, 20, 100, 20);
+			if (Widgets.ButtonText(applyRect, "RimFridge.Apply".Translate()))
 			{
 				if (Settings.PowerFactor.ValidateInput())
 				{
 					GetSettings<Settings>().Write();
-					Messages.Message("New Power Factor Applied", MessageTypeDefOf.PositiveEvent);
+					Messages.Message("RimFridge.NewPowerFactorApplied".Translate(), MessageTypeDefOf.PositiveEvent);
 
 					if (Current.Game != null)
 					{
@@ -78,9 +79,9 @@ namespace RimFridge
 					}
 				}
 			}
-
-			Widgets.Label(new Rect(20, 100, 400, 30), "<new power usage> = <input value> * <original power usage>");
-			Widgets.CheckboxLabeled(new Rect(0, 140, 200, 30), "Act as Trade Beacon:", ref Settings.ActAsBeacon);
+			TooltipHandler.TipRegion(applyRect, "RimFridge.ApplyDesc".Translate());
+			
+			Widgets.CheckboxLabeled(new Rect(0, 60, 200, 30), "RimFridge.ActAsTradeBeacon".Translate(), ref Settings.ActAsBeacon);
 
 			if (ShouldShowCompatibilitySettings)
 			{
@@ -136,7 +137,7 @@ namespace RimFridge
 
 	internal class Settings : ModSettings
 	{
-		public static readonly FloatInput PowerFactor = new FloatInput("Base Power Factor");
+		public static readonly FloatInput PowerFactor = new FloatInput("RimFridge.BasePowerFactor");
 		public static bool ActAsBeacon = false;
 		/* Making this a List causes access to be O(n), but we want to maintain
 			the order the patches were loaded in. */

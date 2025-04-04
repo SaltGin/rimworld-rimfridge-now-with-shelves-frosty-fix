@@ -2,8 +2,20 @@
 <LanguageData>
   <RimFridge.TargetTemperature>목표 온도</RimFridge.TargetTemperature>
   <RimFridge.CurrentTemperature>현재 온도</RimFridge.CurrentTemperature>
-  <RimFridge.Power>전원</RimFridge.Power>
-  <RimFridge.RenameTheRefrigerator>냉장고의 이름을 변경합니다.</RimFridge.RenameTheRefrigerator>
+  <RimFridge.Power>전력</RimFridge.Power>
+  <RimFridge.RenameTheRefrigerator>냉장고 이름 변경</RimFridge.RenameTheRefrigerator>
+  <RimFridge.ToggleGlowColor>발광 색상 전환</RimFridge.ToggleGlowColor>
+  <RimFridge.ToggleGlowColorDesc>발광 색상을 일반 조명과 어두운 조명 사이에서 전환합니다.</RimFridge.ToggleGlowColorDesc>
+  <RimFridge.Compatibility>호환성</RimFridge.Compatibility>
+  <RimFridge.ForceApplicationOfThesePatches>다른 RimFridge 버전에 대해 이러한 패치를 강제 적용</RimFridge.ForceApplicationOfThesePatches>
+  <RimFridge.ModifyBasePowerRequirement>기본 전력 요구량 수정</RimFridge.ModifyBasePowerRequirement>
+  <RimFridge.Apply>적용</RimFridge.Apply>
+  <RimFridge.ApplyDesc>새 전력 사용량 = 입력 값 × 기존 전력 사용량</RimFridge.ApplyDesc>
+  <RimFridge.BasePowerFactor>기본 전력 계수</RimFridge.BasePowerFactor>
+  <RimFridge.CannotBeLessThanOrEqualToZero>{0} 은(는) 0 이하일 수 없습니다.</RimFridge.CannotBeLessThanOrEqualToZero>
+  <RimFridge.UnableToParseToANumber>{0} 을(를) 숫자로 변환할 수 없습니다.</RimFridge.UnableToParseToANumber>
+  <RimFridge.NewPowerFactorApplied>새 전력 계수가 적용되었습니다</RimFridge.NewPowerFactorApplied>
+  <RimFridge.ActAsTradeBeacon>무역 비콘으로 작동</RimFridge.ActAsTradeBeacon>
 
 </LanguageData>
 
