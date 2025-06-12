@@ -1,5 +1,6 @@
 using Verse;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace RimFridge
 {
@@ -9,11 +10,13 @@ namespace RimFridge
 
 		public FridgeCache (Map map) : base(map) { }
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool HasFridgeAt (IntVec3 cell)
 		{
 			return this.FridgeGrid.ContainsKey(cell);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FridgeCache GetFridgeCache (Map map)
 		{
 			return map.GetComponent<FridgeCache>();
@@ -32,6 +35,7 @@ namespace RimFridge
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool TryGetFridge (IntVec3 cell, Map map, out CompRefrigerator comp)
 		{
 			var c = GetFridgeCache(map);
