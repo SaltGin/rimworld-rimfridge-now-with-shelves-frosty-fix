@@ -37,6 +37,7 @@ Thanks to everyone who's added/edited code!
 * kbatbouta – Found a more efficient way to keep track of what food is stored and frozen in fridges.
 * SokyranTheDragon – Improved a Harmony patch such that it has less performance cost and is less likely to be incompatible with other mods and game updates.
 * MrMatsay – Fixed an issue which could cause `InvalidCastException`s to be thrown.
+* JiaRG – Greatly enhanced the mod's support for localisation and provided comprehensive translations.
 
 Many thanks go towards the original authors of this mod: Vendan, and then Kiame Vivacity.
 
