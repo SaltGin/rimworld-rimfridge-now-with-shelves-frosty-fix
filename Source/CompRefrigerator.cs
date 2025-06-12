@@ -102,9 +102,8 @@ namespace RimFridge
 					{
 						ThingWithComps thingWithComps = thing as ThingWithComps;
 						CompFrosty compFrosty = new CompFrosty();
-						thingWithComps.AllComps.Add(compFrosty);
-						compFrosty.props = CompProperties_Frosty.Beer;
 						compFrosty.parent = thingWithComps;
+						CompManipulation.AddCompTo(thingWithComps, compFrosty, CompProperties_Frosty.Beer);
 
 						/* If this thing's ticker-type is rare,
 						   it will have already been registered in the rare-tick-list
