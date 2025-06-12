@@ -2,7 +2,7 @@ using Verse;
 
 namespace RimFridge
 {
-	internal class CompProperties_SecondLayer : CompProperties
+	internal sealed class CompProperties_SecondLayer : CompProperties
 	{
 		public GraphicData graphicData = null;
 

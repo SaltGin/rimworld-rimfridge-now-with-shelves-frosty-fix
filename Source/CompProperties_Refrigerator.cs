@@ -3,7 +3,7 @@ using Verse;
 
 namespace RimFridge
 {
-	public class CompProperties_Refrigerator : CompProperties
+	public sealed class CompProperties_Refrigerator : CompProperties
 	{
 
 		public CompProperties_Refrigerator ()

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace RimFridge
 {
-	public class CompRefrigerator : ThingComp
+	public sealed class CompRefrigerator : ThingComp
 	{
 		public float desiredTemp;
 		public float currentTemp = 21f;

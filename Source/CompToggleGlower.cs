@@ -22,7 +22,7 @@ namespace RimFridge
 		}
 	}
 
-	public class CompProperties_ToggleGlower : CompProperties_Glower
+	public sealed class CompProperties_ToggleGlower : CompProperties_Glower
 	{
 		public CompProperties_ToggleGlower ()
 		{
@@ -30,7 +30,7 @@ namespace RimFridge
 		}
 	}
 
-	class CompToggleGlower : CompGlower
+	sealed class CompToggleGlower : CompGlower
 	{
 		bool isDarklight = false;
 

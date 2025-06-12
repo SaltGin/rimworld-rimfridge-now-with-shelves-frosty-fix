@@ -3,7 +3,7 @@ using Verse;
 
 namespace RimFridge
 {
-	internal class CompProperties_Frosty : CompProperties
+	internal sealed class CompProperties_Frosty : CompProperties
 	{
 		private static ThoughtDef frosty = null;
 

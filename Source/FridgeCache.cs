@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RimFridge
 {
-	public class FridgeCache : MapComponent
+	public sealed class FridgeCache : MapComponent
 	{
 		private const string COULD_NOT_FIND_MAP_COMP = "unable to find fridge grid in map";
 

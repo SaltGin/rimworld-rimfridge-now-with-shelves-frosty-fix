@@ -3,13 +3,13 @@ using Verse;
 
 namespace RimFridge
 {
-	internal class CompSecondLayer : ThingComp
+	internal sealed class CompSecondLayer : ThingComp
 	{
 		private Graphic graphicInt;
 
 		public CompProperties_SecondLayer Props => (CompProperties_SecondLayer) props;
 
-		public virtual Graphic Graphic
+		public Graphic Graphic
 		{
 			get
 			{

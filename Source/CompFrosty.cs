@@ -5,7 +5,7 @@ using Verse;
 
 namespace RimFridge
 {
-	internal class CompFrosty : ThingComp
+	internal sealed class CompFrosty : ThingComp
 	{
 		public static readonly AccessTools.FieldRef<TickManager, TickList> tickListRareOfTickManager = (
 			AccessTools.FieldRefAccess<TickManager, TickList>("tickListRare")
