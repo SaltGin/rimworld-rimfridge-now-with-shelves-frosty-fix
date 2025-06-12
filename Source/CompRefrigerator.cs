@@ -209,9 +209,9 @@ namespace RimFridge
 			FridgeCache.AddFridge(this, this.parent?.Map);
 		}
 
-		public override void PostDeSpawn (Map map)
+		public override void PostDeSpawn (Map map, DestroyMode destroyMode)
 		{
-			base.PostDeSpawn(map);
+			base.PostDeSpawn(map, destroyMode);
 
 			FridgeCache.RemoveFridge(this, map);
 		}
