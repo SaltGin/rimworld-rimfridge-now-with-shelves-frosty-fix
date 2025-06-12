@@ -33,7 +33,7 @@ namespace RimFridge
 		{
 			ThingWithComps thingWithComps = piece as ThingWithComps;
 
-			if (ThingCompUtility.TryGetComp<CompFrosty>(thingWithComps) == null)
+			if (thingWithComps.GetComp<CompFrosty>() == null)
 			{
 				CompFrosty compFrosty = new CompFrosty();
 				compFrosty.parent = thingWithComps;
