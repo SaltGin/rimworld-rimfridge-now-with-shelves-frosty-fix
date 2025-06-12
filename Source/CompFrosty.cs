@@ -53,42 +53,28 @@ namespace RimFridge
 		public override void CompTickRare ()
 		{
 			base.CompTickRare();
-			float num = 15f;
 
-			if (parent.MapHeld != null)
+			Map map = this.parent.MapHeld;
+			IntVec3 cell = this.parent.PositionHeld;
+
+			if (map == null)
 			{
-				num = GridsUtility.GetTemperature(parent.PositionHeld, parent.MapHeld);
+				/* We'll just assume that the beverage is frozen in time. */
+				return;
 			}
 
-			CompEquippable comp = parent.GetComp<CompEquippable>();
+			float ambientTemperature;
 
-			if (comp != null)
+			if (FridgeCache.TryGetFridge(cell, map, out CompRefrigerator fridge))
 			{
-				Pawn casterPawn = comp.PrimaryVerb.CasterPawn;
-
-				if (casterPawn != null)
-				{
-					num = GridsUtility.GetTemperature(casterPawn.PositionHeld, casterPawn.MapHeld);
-				}
+				ambientTemperature = fridge.currentTemp;
+			}
+			else
+			{
+				GenTemperature.TryGetTemperatureForCell(cell, map, out ambientTemperature);
 			}
 
-			if (parent.Spawned)
-			{
-				List<Thing> thingList = GridsUtility.GetThingList(parent.PositionHeld, parent.MapHeld);
-
-				for (int i = 0; i < thingList.Count; i++)
-				{
-					CompRefrigerator fridge = ThingCompUtility.TryGetComp<CompRefrigerator>(thingList[i]);
-
-					if (fridge != null)
-					{
-						num = fridge.currentTemp;
-						break;
-					}
-				}
-			}
-
-			temperature += (num - temperature) * 0.05f;
+			this.temperature += (ambientTemperature - this.temperature) * 0.05f;
 		}
 
 		public override string CompInspectStringExtra ()
