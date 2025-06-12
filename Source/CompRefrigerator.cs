@@ -105,7 +105,14 @@ namespace RimFridge
 						thingWithComps.AllComps.Add(compFrosty);
 						compFrosty.props = CompProperties_Frosty.Beer;
 						compFrosty.parent = thingWithComps;
-						CompFrosty.tickListRareOfTickManager(Find.TickManager).RegisterThing(thingWithComps);
+
+						/* If this thing's ticker-type is rare,
+						   it will have already been registered in the rare-tick-list
+						   by `Thing#SpawnSetup`; if so we won't register it again. */
+						if (thingWithComps.def.tickerType != TickerType.Rare)
+						{
+							CompFrosty.tickListRareOfTickManager(Find.TickManager).RegisterThing(thingWithComps);
+						}
 					}
 				}
 			}
