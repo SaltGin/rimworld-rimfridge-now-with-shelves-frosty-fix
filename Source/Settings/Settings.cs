@@ -138,6 +138,7 @@ namespace RimFridge
 	{
 		public static readonly FloatInput PowerFactor = new FloatInput("RimFridge.BasePowerFactor");
 		public static bool ActAsBeacon = false;
+		public static bool enableFrostyBeverages = true;
 		/* Making this a List causes access to be O(n), but we want to maintain
 			the order the patches were loaded in. */
 		public static List<ApplicationOfPatch> forcedApplicationOfPatches = new();
@@ -159,6 +160,7 @@ namespace RimFridge
 			base.ExposeData();
 			Scribe_Values.Look(ref(PowerFactor.AsString), "RimFridge.PowerFactor", "1.00", false);
 			Scribe_Values.Look(ref ActAsBeacon, "RimFridge.ActAsBeacon", false, false);
+			Scribe_Values.Look(ref enableFrostyBeverages, "RimFridge.EnableFrostyBeverages", true, false);
 			Scribe_Collections.Look(ref forcedApplicationOfPatches, "RimFridge.ForcedApplicationOfPatches", LookMode.Deep);
 
 			if (Scribe.mode == LoadSaveMode.PostLoadInit)

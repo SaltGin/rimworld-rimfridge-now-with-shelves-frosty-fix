@@ -23,6 +23,11 @@ namespace RimFridge
 		{
 			base.PostIngested(ingester);
 
+			if (!Settings.enableFrostyBeverages)
+			{
+				return;
+			}
+
 			if (temperature <= IDEAL_TEMPERATURE)
 			{
 				ingester.needs.mood.thoughts.memories.TryGainMemory(Props.thought, null);
@@ -31,6 +36,11 @@ namespace RimFridge
 
 		public override void PostSplitOff (Thing piece)
 		{
+			if (!Settings.enableFrostyBeverages)
+			{
+				return;
+			}
+
 			ThingWithComps thingWithComps = piece as ThingWithComps;
 
 			if (thingWithComps.GetComp<CompFrosty>() == null)
@@ -52,6 +62,11 @@ namespace RimFridge
 
 		public override void CompTickRare ()
 		{
+			if (!Settings.enableFrostyBeverages)
+			{
+				return;
+			}
+
 			base.CompTickRare();
 
 			Map map = this.parent.MapHeld;
@@ -79,7 +94,12 @@ namespace RimFridge
 
 		public override string CompInspectStringExtra ()
 		{
-			return (temperature <= IDEAL_TEMPERATURE) ? "RimFridge.FrostyBeverage".Translate() : "";
+			if (!Settings.enableFrostyBeverages)
+			{
+				return null;
+			}
+
+			return this.temperature <= IDEAL_TEMPERATURE ? "RimFridge.FrostyBeverage".Translate() : null;
 		}
 	}
 }
