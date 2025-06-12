@@ -16,7 +16,7 @@
   <RimFridge.UnableToParseToANumber>{0} を数値として解析できません。</RimFridge.UnableToParseToANumber>
   <RimFridge.NewPowerFactorApplied>新しい消費電力係数が適用されました</RimFridge.NewPowerFactorApplied>
   <RimFridge.ActAsTradeBeacon>交易ビーコンとして機能</RimFridge.ActAsTradeBeacon>
-
+  <RimFridge.FrostyBeverage>冷たい飲み物</RimFridge.FrostyBeverage>
 </LanguageData>
 
 

@@ -82,7 +82,7 @@ namespace RimFridge
 
 		public override string CompInspectStringExtra ()
 		{
-			return (temperature <= IDEAL_TEMPERATURE) ? "Frosty" : "";
+			return (temperature <= IDEAL_TEMPERATURE) ? "RimFridge.FrostyBeverage".Translate() : "";
 		}
 	}
 }

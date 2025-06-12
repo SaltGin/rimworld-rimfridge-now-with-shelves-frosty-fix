@@ -16,6 +16,7 @@
     <RimFridge.UnableToParseToANumber>Не удалось преобразовать {0} в число.</RimFridge.UnableToParseToANumber>
     <RimFridge.NewPowerFactorApplied>Новый коэффициент энергии применен</RimFridge.NewPowerFactorApplied>
     <RimFridge.ActAsTradeBeacon>Работать как торговый маяк</RimFridge.ActAsTradeBeacon>
+    <RimFridge.FrostyBeverage>Замороженный напиток</RimFridge.FrostyBeverage>
 </LanguageData>
 
 

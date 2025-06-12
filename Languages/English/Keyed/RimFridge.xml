@@ -16,5 +16,6 @@
 	<RimFridge.UnableToParseToANumber>Unable to parse {0} to a number.</RimFridge.UnableToParseToANumber>
 	<RimFridge.NewPowerFactorApplied>New Power Factor Applied</RimFridge.NewPowerFactorApplied>
 	<RimFridge.ActAsTradeBeacon>Act as Trade Beacon</RimFridge.ActAsTradeBeacon>
+	<RimFridge.FrostyBeverage>Frosty Beverage</RimFridge.FrostyBeverage>
 </LanguageData>
 

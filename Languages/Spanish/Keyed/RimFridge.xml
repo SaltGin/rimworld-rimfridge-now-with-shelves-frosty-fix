@@ -16,6 +16,6 @@
 	<RimFridge.UnableToParseToANumber>No se pudo convertir {0} en un número.</RimFridge.UnableToParseToANumber>
 	<RimFridge.NewPowerFactorApplied>Nuevo Factor de Energía Aplicado</RimFridge.NewPowerFactorApplied>
 	<RimFridge.ActAsTradeBeacon>Actuar como un Faro Comercial</RimFridge.ActAsTradeBeacon>
-
+	<RimFridge.FrostyBeverage>Bebidas heladas</RimFridge.FrostyBeverage>
 </LanguageData>
 

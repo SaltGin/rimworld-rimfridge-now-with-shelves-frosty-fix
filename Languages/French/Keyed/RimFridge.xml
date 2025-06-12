@@ -16,5 +16,6 @@
 	<RimFridge.UnableToParseToANumber>Impossible d'analyser {0} en un nombre.</RimFridge.UnableToParseToANumber>
 	<RimFridge.NewPowerFactorApplied>Nouveau Facteur de Consommation Appliqué</RimFridge.NewPowerFactorApplied>
 	<RimFridge.ActAsTradeBeacon>Agir comme Balise Commerciale</RimFridge.ActAsTradeBeacon>
+	<RimFridge.FrostyBeverage>Boissons Glacées</RimFridge.FrostyBeverage>
 </LanguageData>
 
