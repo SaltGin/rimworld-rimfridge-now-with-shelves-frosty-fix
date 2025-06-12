@@ -11,7 +11,7 @@
 	<RimFridge.ForceApplicationOfThesePatches>Ezeknek a javításoknak az alkalmazását kényszeríti a RimFridge más verzióira.</RimFridge.ForceApplicationOfThesePatches>
 	<RimFridge.ModifyBasePowerRequirement>Alap Energiaigény Módosítása</RimFridge.ModifyBasePowerRequirement>
 	<RimFridge.Apply>Alkalmaz</RimFridge.Apply>
-	<RimFridge.ApplyDesc>Új energiafogyasztás = Bemeneti érték * Eredeti energiafogyasztás</RimFridge.ApplyDesc>
+	<RimFridge.PowerFactorExplanation>Új energiafogyasztás = Bemeneti érték * Eredeti energiafogyasztás</RimFridge.PowerFactorExplanation>
 	<RimFridge.BasePowerFactor>Alap Energia Faktor</RimFridge.BasePowerFactor>
 	<RimFridge.CannotBeLessThanOrEqualToZero>{0} nem lehet kisebb vagy egyenlő 0-val.</RimFridge.CannotBeLessThanOrEqualToZero>
 	<RimFridge.UnableToParseToANumber>{0} nem alakítható számmá.</RimFridge.UnableToParseToANumber>

@@ -10,7 +10,7 @@
   <RimFridge.ForceApplicationOfThesePatches>RimFridge の他のバージョンにこれらのパッチの適用を強制する</RimFridge.ForceApplicationOfThesePatches>
   <RimFridge.ModifyBasePowerRequirement>基本消費電力の変更</RimFridge.ModifyBasePowerRequirement>
   <RimFridge.Apply>適用</RimFridge.Apply>
-  <RimFridge.ApplyDesc>新しい消費電力 = 入力値 × 元の消費電力</RimFridge.ApplyDesc>
+  <RimFridge.PowerFactorExplanation>新しい消費電力 = 入力値 × 元の消費電力</RimFridge.PowerFactorExplanation>
   <RimFridge.BasePowerFactor>基本消費電力係数</RimFridge.BasePowerFactor>
   <RimFridge.CannotBeLessThanOrEqualToZero>{0} は 0 以下にはできません。</RimFridge.CannotBeLessThanOrEqualToZero>
   <RimFridge.UnableToParseToANumber>{0} を数値として解析できません。</RimFridge.UnableToParseToANumber>

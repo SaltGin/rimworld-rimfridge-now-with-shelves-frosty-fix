@@ -10,7 +10,7 @@
 	<RimFridge.ForceApplicationOfThesePatches>Force the application of these patches for other versions of RimFridge.</RimFridge.ForceApplicationOfThesePatches>
 	<RimFridge.ModifyBasePowerRequirement>Modify Base Power Requirement</RimFridge.ModifyBasePowerRequirement>
 	<RimFridge.Apply>Apply</RimFridge.Apply>
-	<RimFridge.ApplyDesc>New Power Usage = Input Value * Original Power Usage</RimFridge.ApplyDesc>
+	<RimFridge.PowerFactorExplanation>New Power Usage = Input Value * Original Power Usage</RimFridge.PowerFactorExplanation>
 	<RimFridge.BasePowerFactor>Base Power Factor</RimFridge.BasePowerFactor>
 	<RimFridge.CannotBeLessThanOrEqualToZero>{0} cannot be less than or equal to 0.</RimFridge.CannotBeLessThanOrEqualToZero>
 	<RimFridge.UnableToParseToANumber>Unable to parse {0} to a number.</RimFridge.UnableToParseToANumber>

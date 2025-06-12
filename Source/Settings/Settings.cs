@@ -62,11 +62,10 @@ namespace RimFridge
 
 			GUI.BeginGroup(new Rect(0, 60, 800, 600));
 			Text.Font = GameFont.Small;
-			Widgets.Label(new Rect(0, 20, 300, 20), "RimFridge.ModifyBasePowerRequirement".Translate() + ":");
-			Settings.PowerFactor.AsString = Widgets.TextField(new Rect(300, 20, 100, 20), Settings.PowerFactor.AsString);
+			Widgets.Label(new Rect(0, 40, 300, 20), "RimFridge.ModifyBasePowerRequirement".Translate() + ":");
+			Settings.PowerFactor.AsString = Widgets.TextField(new Rect(320, 40, 100, 20), Settings.PowerFactor.AsString);
 
-			var applyRect = new Rect(405, 20, 100, 20);
-			if (Widgets.ButtonText(applyRect, "RimFridge.Apply".Translate()))
+			if (Widgets.ButtonText(new Rect(320, 65, 100, 20), "RimFridge.Apply".Translate()))
 			{
 				if (Settings.PowerFactor.ValidateInput())
 				{
@@ -79,9 +78,9 @@ namespace RimFridge
 					}
 				}
 			}
-			TooltipHandler.TipRegion(applyRect, "RimFridge.ApplyDesc".Translate());
-			
-			Widgets.CheckboxLabeled(new Rect(0, 60, 200, 30), "RimFridge.ActAsTradeBeacon".Translate(), ref Settings.ActAsBeacon);
+
+			Widgets.Label(new Rect(20, 100, 400, 30), "RimFridge.PowerFactorExplanation".Translate());
+			Widgets.CheckboxLabeled(new Rect(0, 140, 200, 30), "RimFridge.ActAsTradeBeacon".Translate(), ref Settings.ActAsBeacon);
 
 			if (ShouldShowCompatibilitySettings)
 			{

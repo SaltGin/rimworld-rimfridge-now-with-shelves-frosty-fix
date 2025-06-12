@@ -11,7 +11,7 @@
   <RimFridge.ForceApplicationOfThesePatches>Erzwinge die Anwendung dieser Patches für andere Versionen von RimFridge.</RimFridge.ForceApplicationOfThesePatches>
   <RimFridge.ModifyBasePowerRequirement>Grundenergiebedarf Ändern</RimFridge.ModifyBasePowerRequirement>
   <RimFridge.Apply>Anwenden</RimFridge.Apply>
-  <RimFridge.ApplyDesc>Neuer Energieverbrauch = Eingabewert * Ursprünglicher Energieverbrauch</RimFridge.ApplyDesc>
+  <RimFridge.PowerFactorExplanation>Neuer Energieverbrauch = Eingabewert * Ursprünglicher Energieverbrauch</RimFridge.PowerFactorExplanation>
   <RimFridge.BasePowerFactor>Grundenergie-Faktor</RimFridge.BasePowerFactor>
   <RimFridge.CannotBeLessThanOrEqualToZero>{0} darf nicht kleiner oder gleich 0 sein.</RimFridge.CannotBeLessThanOrEqualToZero>
   <RimFridge.UnableToParseToANumber>{0} kann nicht in eine Zahl umgewandelt werden.</RimFridge.UnableToParseToANumber>

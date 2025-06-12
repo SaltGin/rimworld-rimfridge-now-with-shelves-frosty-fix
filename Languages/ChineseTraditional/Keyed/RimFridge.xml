@@ -14,7 +14,7 @@
   <RimFridge.ForceApplicationOfThesePatches>强制为其他版本的 RimFridge 应用这些补丁。</RimFridge.ForceApplicationOfThesePatches>
   <RimFridge.ModifyBasePowerRequirement>修改基本功率要求</RimFridge.ModifyBasePowerRequirement>
   <RimFridge.Apply>应用</RimFridge.Apply>
-  <RimFridge.ApplyDesc>新电力消耗 = 输入值 * 原电力消耗</RimFridge.ApplyDesc>
+  <RimFridge.PowerFactorExplanation>新电力消耗 = 输入值 * 原电力消耗</RimFridge.PowerFactorExplanation>
   <RimFridge.BasePowerFactor>基本功率因数</RimFridge.BasePowerFactor>
   <RimFridge.CannotBeLessThanOrEqualToZero>{0} 不能小于或等于0。</RimFridge.CannotBeLessThanOrEqualToZero>
   <RimFridge.UnableToParseToANumber>无法将 {0} 解析为一个数字。</RimFridge.UnableToParseToANumber>

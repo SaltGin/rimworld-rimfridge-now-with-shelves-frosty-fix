@@ -10,7 +10,7 @@
   <RimFridge.ForceApplicationOfThesePatches>다른 RimFridge 버전에 대해 이러한 패치를 강제 적용</RimFridge.ForceApplicationOfThesePatches>
   <RimFridge.ModifyBasePowerRequirement>기본 전력 요구량 수정</RimFridge.ModifyBasePowerRequirement>
   <RimFridge.Apply>적용</RimFridge.Apply>
-  <RimFridge.ApplyDesc>새 전력 사용량 = 입력 값 × 기존 전력 사용량</RimFridge.ApplyDesc>
+  <RimFridge.PowerFactorExplanation>새 전력 사용량 = 입력 값 × 기존 전력 사용량</RimFridge.PowerFactorExplanation>
   <RimFridge.BasePowerFactor>기본 전력 계수</RimFridge.BasePowerFactor>
   <RimFridge.CannotBeLessThanOrEqualToZero>{0} 은(는) 0 이하일 수 없습니다.</RimFridge.CannotBeLessThanOrEqualToZero>
   <RimFridge.UnableToParseToANumber>{0} 을(를) 숫자로 변환할 수 없습니다.</RimFridge.UnableToParseToANumber>

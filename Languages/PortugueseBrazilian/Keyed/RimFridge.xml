@@ -10,7 +10,7 @@
   <RimFridge.ForceApplicationOfThesePatches>Forçar a aplicação desses patches para outras versões do RimFridge.</RimFridge.ForceApplicationOfThesePatches>
   <RimFridge.ModifyBasePowerRequirement>Modificar Requisito Básico de Energia</RimFridge.ModifyBasePowerRequirement>
   <RimFridge.Apply>Aplicar</RimFridge.Apply>
-  <RimFridge.ApplyDesc>Novo Consumo de Energia = Valor Inserido × Consumo de Energia Original</RimFridge.ApplyDesc>
+  <RimFridge.PowerFactorExplanation>Novo Consumo de Energia = Valor Inserido × Consumo de Energia Original</RimFridge.PowerFactorExplanation>
   <RimFridge.BasePowerFactor>Fator de Energia Base</RimFridge.BasePowerFactor>
   <RimFridge.CannotBeLessThanOrEqualToZero>{0} não pode ser menor ou igual a 0.</RimFridge.CannotBeLessThanOrEqualToZero>
   <RimFridge.UnableToParseToANumber>Não foi possível converter {0} para um número.</RimFridge.UnableToParseToANumber>
