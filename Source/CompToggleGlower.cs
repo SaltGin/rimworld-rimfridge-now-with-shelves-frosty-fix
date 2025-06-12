@@ -56,7 +56,6 @@ namespace RimFridge
 						SetLightColor();
 						base.parent.Map.glowGrid.DeRegisterGlower(this);
 						base.parent.Map.glowGrid.RegisterGlower(this);
-						base.parent.Map.mapDrawer.MapMeshDirty(base.parent.Position, MapMeshFlagDefOf.Things);
 					},
 					defaultLabel = "RimFridge.ToggleGlowColor".Translate(),
 					defaultDesc = "RimFridge.ToggleGlowColorDesc".Translate(),
