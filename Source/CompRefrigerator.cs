@@ -93,12 +93,12 @@ namespace RimFridge
 		{
 			base.CompTickRare();
 
-			//Check for alcohol that is best drunk cold.
-			foreach (IntVec3 cell in  ((Building_Storage) parent).AllSlotCells())
+			/* Check for beverages which are best enjoyed cold. */
+			foreach (IntVec3 cell in ((Building_Storage) parent).AllSlotCells())
 			{
 				foreach (Thing thing in GridsUtility.GetThingList(cell, parent.Map))
 				{
-					if (drinksBestCold.Contains(thing.def.defName) && ThingCompUtility.TryGetComp<CompFrosty>(thing) == null)
+					if (ThingCompUtility.TryGetComp<CompFrosty>(thing) == null && drinksBestCold.Contains(thing.def.defName))
 					{
 						ThingWithComps thingWithComps = thing as ThingWithComps;
 						CompFrosty compFrosty = new CompFrosty();
