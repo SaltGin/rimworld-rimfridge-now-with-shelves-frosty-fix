@@ -1,3 +1,4 @@
+using HarmonyLib;
 using System.Collections.Generic;
 using System.Reflection;
 using Verse;
@@ -6,6 +7,10 @@ namespace RimFridge
 {
 	internal class CompFrosty : ThingComp
 	{
+		public static readonly AccessTools.FieldRef<TickManager, TickList> tickListRareOfTickManager = (
+			AccessTools.FieldRefAccess<TickManager, TickList>("tickListRare")
+		);
+
 		// Most beer's ideal temperature is around 8 degC
 		private const float IDEAL_TEMPERATURE = 8f;
 
@@ -35,7 +40,7 @@ namespace RimFridge
 				compFrosty.props = CompProperties_Frosty.Beer;
 				compFrosty.parent = thingWithComps;
 				compFrosty.temperature = temperature;
-				((TickList) typeof(TickManager).GetField("tickListRare", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Find.TickManager)).RegisterThing(thingWithComps);
+				tickListRareOfTickManager(Find.TickManager).RegisterThing(thingWithComps);
 			}
 		}
 

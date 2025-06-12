@@ -105,7 +105,7 @@ namespace RimFridge
 						thingWithComps.AllComps.Add(compFrosty);
 						compFrosty.props = CompProperties_Frosty.Beer;
 						compFrosty.parent = thingWithComps;
-						((TickList) typeof(TickManager).GetField("tickListRare", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Find.TickManager)).RegisterThing(thingWithComps);
+						CompFrosty.tickListRareOfTickManager(Find.TickManager).RegisterThing(thingWithComps);
 					}
 				}
 			}
