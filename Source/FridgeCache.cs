@@ -5,8 +5,6 @@ namespace RimFridge
 {
 	public sealed class FridgeCache : MapComponent
 	{
-		private const string COULD_NOT_FIND_MAP_COMP = "unable to find fridge grid in map";
-
 		private Dictionary<IntVec3, CompRefrigerator> FridgeGrid = new Dictionary<IntVec3, CompRefrigerator>();
 
 		public FridgeCache (Map map) : base(map) { }
@@ -18,16 +16,7 @@ namespace RimFridge
 
 		public static FridgeCache GetFridgeCache (Map map)
 		{
-			if (map != null)
-			{
-				foreach (var c in map.components)
-					if (c is FridgeCache fc)
-						return fc;
-
-				Log.Error(COULD_NOT_FIND_MAP_COMP);//, COULD_NOT_FIND_MAP_COMP.GetHashCode());
-			}
-
-			return null;
+			return map.GetComponent<FridgeCache>();
 		}
 
 		public static void AddFridge (CompRefrigerator comp, Map map)
