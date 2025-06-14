@@ -69,14 +69,13 @@ namespace RimFridge
 
 			base.CompTickRare();
 
-			Map map = this.parent.MapHeld;
-			IntVec3 cell = this.parent.PositionHeld;
-
-			if (map == null)
+			if (!this.parent.Spawned)
 			{
-				/* We'll just assume that the beverage is frozen in time. */
 				return;
 			}
+
+			Map map = this.parent.MapHeld;
+			IntVec3 cell = this.parent.PositionHeld;
 
 			float ambientTemperature;
 

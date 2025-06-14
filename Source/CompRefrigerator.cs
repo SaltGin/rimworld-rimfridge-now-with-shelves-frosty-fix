@@ -93,6 +93,11 @@ namespace RimFridge
 		{
 			base.CompTickRare();
 
+			if (!this.parent.Spawned)
+			{
+				return;
+			}
+
 			if (Settings.enableFrostyBeverages)
 			{
 				/* Check for beverages which are best enjoyed cold. */
