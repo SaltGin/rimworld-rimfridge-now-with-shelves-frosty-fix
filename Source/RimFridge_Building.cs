@@ -1,8 +1,10 @@
 using RimWorld;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace RimFridge
 {
@@ -13,7 +15,14 @@ namespace RimFridge
 		public RimFridge_Building () : base()
 		{}
 
+		internal int maximumItemsPerCell;
 		public string fridgeLabel;
+
+
+		public override int MaxItemsInCell
+		{
+			get => this.maximumItemsPerCell;
+		}
 
 		public string RenamableLabel
 		{
@@ -46,11 +55,149 @@ namespace RimFridge
 				hotKey = KeyBindingDefOf.Misc1,
 				icon = ContentFinder<Texture2D>.Get("UI/Buttons/Rename", true)
 			};
+
+			if (this.maximumItemsPerCell > 0)
+			{
+				yield return new Command_Action
+				{
+					action = () =>
+					{
+						SoundStarter.PlayOneShotOnCamera(SoundDefOf.DragSlider);
+						this.LowerMaxItemsInCell();
+					},
+					defaultLabel = "RimFridge.LowerMaxItemsPerCell".Translate(),
+					defaultDesc = "RimFridge.LowerMaxItemsPerCellDescription".Translate(),
+					icon = TexButton.Minus
+				};
+			}
+
+			if (this.maximumItemsPerCell < this.def.building.maxItemsInCell)
+			{
+				yield return new Command_Action
+				{
+					action = () =>
+					{
+						SoundStarter.PlayOneShotOnCamera(SoundDefOf.DragSlider);
+						this.RaiseMaxItemsInCell();
+					},
+					defaultLabel = "RimFridge.RaiseMaxItemsPerCell".Translate(),
+					defaultDesc = "RimFridge.RaiseMaxItemsPerCellDescription".Translate(),
+					icon = TexButton.Plus
+				};
+			}
+
+		public void LowerMaxItemsInCell ()
+		{
+			this.LowerMaxItemsInCellBy(1);
+		}
+
+		public int LowerMaxItemsInCellBy (byte delta)
+		{
+			int oldItemsPerCell = this.maximumItemsPerCell;
+			int itemsPerCell = delta < oldItemsPerCell ? oldItemsPerCell - delta : 0;
+
+			int greatestItemCountInCell = 0;
+			Map map = this.Map;
+
+			foreach (IntVec3 cell in this.OccupiedRect())
+			{
+				int itemCount = cell.GetItemCount(map);
+				greatestItemCountInCell = itemCount > greatestItemCountInCell ? itemCount : greatestItemCountInCell;
+			}
+
+			if (greatestItemCountInCell > itemsPerCell)
+			{
+				itemsPerCell = greatestItemCountInCell;
+
+				Verse.Messages.Message(
+					"RimFridge.MaxItemsInCellCannotBeLowerThanGreatestItemCount".Translate(greatestItemCountInCell),
+					this,
+					RimWorld.MessageTypeDefOf.RejectInput,
+					historical: false
+				);
+			}
+
+			this.maximumItemsPerCell = itemsPerCell;
+
+			return oldItemsPerCell - itemsPerCell;
+		}
+
+		public void RaiseMaxItemsInCell ()
+		{
+			this.RaiseMaxItemsInCellBy(1);
+		}
+
+		public int RaiseMaxItemsInCellBy (byte delta)
+		{
+			int oldItemsPerCell = this.maximumItemsPerCell;
+			int itemsPerCell = oldItemsPerCell + delta;
+
+			if (itemsPerCell > this.def.building.maxItemsInCell)
+			{
+				itemsPerCell = this.def.building.maxItemsInCell;
+
+				Verse.Messages.Message(
+					"RimFridge.MaxItemsInCellCannotBeGreaterThanBuildingLimit".Translate(this.def.building.maxItemsInCell),
+					this,
+					RimWorld.MessageTypeDefOf.RejectInput,
+					historical: false
+				);
+			}
+
+			this.maximumItemsPerCell = itemsPerCell;
+
+			return itemsPerCell - oldItemsPerCell;
+		}
+
+		public override void PostMake ()
+		{
+			this.maximumItemsPerCell = this.DefaultMaximumItemsPerCellForNewFridge;
+			base.PostMake();
+		}
+
+		public int DefaultMaximumItemsPerCellForNewFridge
+		{
+			get
+			{
+				int maxItemsPerCell = Settings.defaultMaximumItemsPerCell;
+				return (
+					  maxItemsPerCell <= this.def.building.maxItemsInCell
+					? maxItemsPerCell
+					: this.def.building.maxItemsInCell
+				);
+			}
+		}
+
+		public int DefaultMaximumItemsPerCellForExistingFridge
+		{
+			get
+			{
+				int maximum = this.DefaultMaximumItemsPerCellForNewFridge;
+				Map map = this.Map;
+
+				foreach (IntVec3 cell in this.OccupiedRect())
+				{
+					int itemCount = cell.GetItemCount(map);
+					maximum = itemCount > maximum ? itemCount : maximum;
+				}
+
+				return maximum;
+			}
+		}
+
+		public override string GetInspectString ()
+		{
+			return new StringBuilder(base.GetInspectString()).AppendLine().Append(
+				"RimFridge.MaxItemsPerCell".Translate(this.MaxItemsInCell)
+			).ToString();
 		}
 
 		public override void ExposeData ()
 		{
 			base.ExposeData();
+
+
+			Scribe_Values.Look(ref this.maximumItemsPerCell, "maxItemsPerCell", 0x7FFFFFFF);
 
 			/* Versions older than 1.2.0 of RimFridge handled the fridge label
 			   via the CompRefrigerator comp, rather than via the this building.
@@ -61,6 +208,19 @@ namespace RimFridge
 			if (Scribe.mode != LoadSaveMode.LoadingVars || this.fridgeLabel == null)
 			{
 				Scribe_Values.Look(ref this.fridgeLabel, "fridgeLabel");
+			}
+		}
+
+		public override void PostMapInit ()
+		{
+			base.PostMapInit();
+
+			/* I'm not happy about doing this here, but we can't do it
+			   in `ExposeData` as the map's `ThingList`s
+			   have yet to be initialised when those methods are called. */
+			if (this.maximumItemsPerCell == 0x7FFFFFFF)
+			{
+				this.maximumItemsPerCell = this.DefaultMaximumItemsPerCellForExistingFridge;
 			}
 		}
 
