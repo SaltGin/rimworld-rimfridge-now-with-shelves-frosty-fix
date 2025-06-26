@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using System.Xml;
 using UnityEngine;
 using Verse;
 using Verse.AI;
@@ -249,6 +250,62 @@ namespace RimFridge
 
 	public static class HacksForCompatibility
 	{
+		[HarmonyPatch(
+			typeof(BackCompatibility),
+			nameof(BackCompatibility.GetBackCompatibleType),
+			new[] {typeof(Type), typeof(string), typeof(XmlNode)}
+		)]
+		public static class ChangeTheClassOfOldWallFridges
+		{
+			[HarmonyPrefix]
+			public static bool GetBackCompatibleType (
+				ref Type __result,
+				Type baseType,
+				string providedClassName,
+				XmlNode node
+			)
+			{
+				/* This is a bit of a kludge, but we do it only once for each affected save,
+				   and the patch is applied and removed on demand,
+				   so there's no performance impact in the usual case. */
+
+				if (providedClassName != "RimFridge.RimFridge_Building")
+				{
+					return true;
+				}
+
+				if (node != null)
+				{
+					foreach (XmlNode childNode in node)
+					{
+						if (childNode.NodeType == XmlNodeType.Element)
+						{
+							XmlElement element = (XmlElement) childNode;
+
+							if (element.Name == "def")
+							{
+								if (
+									   element.InnerXml == "RimFridge_SingleWallRefrigerator"
+									|| element.InnerXml == "RimFridge_WallRefrigerator"
+								)
+								{
+									Logger.Message("Found an old-style wall-fridge; migrating it to the new-style.");
+									__result = typeof(RimFridge_DoubleSidedWallBuilding);
+									return false;
+								}
+
+								break;
+							}
+						}
+					}
+				}
+
+				__result = typeof(RimFridge_Building);
+				return false;
+			}
+		}
+
+
 		[HarmonyPatch(typeof(LoadedModManager), nameof(LoadedModManager.ErrorCheckPatches))]
 		public static class ForceTheApplicationOfSomePatches
 		{

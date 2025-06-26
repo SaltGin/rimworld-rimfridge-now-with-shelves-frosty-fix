@@ -15,6 +15,7 @@
 
 	<ThingDef ParentName="WallFridgeBase">
 		<defName>RimFridge_SingleWallRefrigerator</defName>
+		<thingClass>RimFridge.RimFridge_DoubleSidedWallBuilding</thingClass>
 		<label>Wall Single Refrigerator</label>
 		<graphicData>
 			<texPath>Building/Temperature/Fridge/WallSingleFridge</texPath>
@@ -60,6 +61,7 @@
 
 	<ThingDef ParentName="WallFridgeBase">
 		<defName>RimFridge_WallRefrigerator</defName>
+		<thingClass>RimFridge.RimFridge_DoubleSidedWallBuilding</thingClass>
 		<label>Wall Dual Refrigerator</label>
 		<graphicData>
 			<texPath>Building/Temperature/Fridge/WallDualFridge</texPath>

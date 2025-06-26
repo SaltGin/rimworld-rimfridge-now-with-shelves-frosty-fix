@@ -6,6 +6,7 @@ namespace RimFridge
 	public class RimFridgeComponent : GameComponent
 	{
 		internal SettingsController mod;
+		public uint backwardsCompatibilityVersionForCurrentSave;
 
 		public RimFridgeComponent (Game game) : this()
 		{}
@@ -34,6 +35,30 @@ namespace RimFridge
 			DefDatabase<ResearchProjectDef>.GetNamed("RimFridge_PowerFactorSetting").tab = null;
 
 			RimFridgeSettingsUtil.ApplyFactor(Settings.PowerFactor.AsFloat);
+
+			if (this.backwardsCompatibilityVersionForCurrentSave == 0)
+			{
+				SettingsController.Unpatch(typeof(HacksForCompatibility.ChangeTheClassOfOldWallFridges));
+			}
+		}
+
+		public override void ExposeData ()
+		{
+			if (Scribe.mode == LoadSaveMode.LoadingVars)
+			{
+				Scribe_Values.Look(ref this.backwardsCompatibilityVersionForCurrentSave, "backwardsCompatibilityVersion", (uint) 0, true);
+
+				if (this.backwardsCompatibilityVersionForCurrentSave == 0)
+				{
+					Logger.Message("backwardsCompatibilityVersionForCurrentSave: v0. Migrating to v1.");
+					SettingsController.Patch(typeof(HacksForCompatibility.ChangeTheClassOfOldWallFridges));
+				}
+			}
+			else if (Scribe.mode == LoadSaveMode.Saving)
+			{
+				uint latestVersion = 1;
+				Scribe_Values.Look(ref latestVersion, "backwardsCompatibilityVersion", (uint) 1, true);
+			}
 		}
 	}
 
