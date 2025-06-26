@@ -24,6 +24,7 @@ namespace RimFridge
 			FridgeCacheFast.wallFridgeCache[map] = (this.wallFridgeCache = new Dictionary<IntVec3, RimFridge_WallBuilding>());
 			FridgeCacheFast.doubleSidedCache[map] = (this.doubleSidedCache = new Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding>());
 
+			map.events.RegionsRoomsChanged += this.ReactToChangeOfRegionsAndRooms;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -106,6 +107,14 @@ namespace RimFridge
 			this.rimFridgeCache.Clear();
 			this.wallFridgeCache.Clear();
 			this.doubleSidedCache.Clear();
+		}
+
+		public void ReactToChangeOfRegionsAndRooms ()
+		{
+			foreach (RimFridge_Building rimFridge in this.rimFridgeCache.Values)
+			{
+				rimFridge.ReactToChangeOfRegionsAndRooms();
+			}
 		}
 	}
 

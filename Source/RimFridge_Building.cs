@@ -1,4 +1,5 @@
 using RimWorld;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Verse;
@@ -7,6 +8,8 @@ namespace RimFridge
 {
 	class RimFridge_Building : Building_Storage, IRenameable
 	{
+		public Room[] rooms;
+
 		public RimFridge_Building () : base()
 		{}
 
@@ -67,14 +70,29 @@ namespace RimFridge
 
 			FridgeCacheFast.AddToCache(FridgeCacheFast.rimFridgeCache[map], this, GenAdj.OccupiedRect(this));
 
+			this.ReactToChangeOfRegionsAndRooms();
 		}
 
 		public override void DeSpawn (DestroyMode mode)
 		{
 			base.DeSpawn(mode);
 
+			this.rooms = null;
+
 			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.rimFridgeCache[this.Map], GenAdj.OccupiedRect(this));
 		}
+
+		public virtual void ReactToChangeOfRegionsAndRooms ()
+		{
+			if (!this.Spawned)
+			{
+				this.rooms = new Room[0];
+				return;
+			}
+
+			Room[] rooms = new Room[1];
+			rooms[0] = this.Position.GetRoom(this.Map);
+			this.rooms = rooms;
 		}
 	}
 
@@ -82,6 +100,79 @@ namespace RimFridge
 	{
 		public RimFridge_WallBuilding () : base()
 		{
+		}
+
+		public override void ReactToChangeOfRegionsAndRooms ()
+		{
+			if (!this.Spawned)
+			{
+				this.rooms = new Room[0];
+				return;
+			}
+
+			Region[] possibleRegions = this.GatherAdjacentRegions();
+
+			int possibleCount = possibleRegions.Length;
+			int uniqueCount = 0;
+
+			for (int regionIndex = 0; regionIndex < possibleCount; ++regionIndex)
+			{
+				Region region = possibleRegions[regionIndex];
+
+				if (region == null)
+				{
+					goto handledRegion;
+				}
+
+				for (int uniqueIndex = 0; uniqueIndex < uniqueCount; ++uniqueIndex)
+				{
+					if (possibleRegions[uniqueIndex] == region)
+					{
+						goto handledRegion;
+					}
+				}
+
+				possibleRegions[uniqueCount++] = region;
+			handledRegion: {}
+			}
+
+			Region[] regions = new Region[uniqueCount];
+
+			for (int index = 0; index < uniqueCount; ++index)
+			{
+				regions[index] = possibleRegions[index];
+			}
+
+			Room[] rooms = new Room[uniqueCount];
+			int roomCount = 0;
+
+			for (int regionIndex = 0; regionIndex < uniqueCount; ++regionIndex)
+			{
+				Room room = regions[regionIndex].Room;
+
+				if (room == null)
+				{
+					goto handledRoom;
+				}
+
+				for (int roomIndex = 0; roomIndex < roomCount; ++roomIndex)
+				{
+					if (rooms[roomIndex] == room)
+					{
+						goto handledRoom;
+					}
+				}
+
+				rooms[roomCount++] = room;
+			handledRoom: {}
+			}
+
+			Array.Resize(ref rooms, roomCount);
+
+			this.rooms = rooms;
+		}
+
+		public abstract Region[] GatherAdjacentRegions ();
 
 		public override void SpawnSetup (Map map, bool respawningAfterLoad)
 		{
@@ -116,6 +207,74 @@ namespace RimFridge
 			base.DeSpawn(mode);
 
 			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.doubleSidedCache[this.Map], GenAdj.OccupiedRect(this));
+		}
+
+		public override Region[] GatherAdjacentRegions ()
+		{
+			Region[] regions;
+
+			int sizeX = this.def.size.x - 1;
+
+			IntVec3 cell = this.Position;
+			Map map = this.Map;
+			int rotation = this.Rotation.AsInt;
+
+			if (sizeX == 0)
+			{
+				IntVec3 oppositeCell = cell;
+
+				if ((rotation & 1) == 0)
+				{
+				/* North or south. */
+					cell.z += rotation == 0 ? +1 : -1;
+					oppositeCell.z += rotation == 0 ? -1 : +1;
+				}
+				else
+				{
+				/* East or west. */
+					cell.x += rotation == 1 ? +1 : -1;
+					oppositeCell.x += rotation == 1 ? -1 : +1;
+				}
+
+				regions = new Region[2];
+				regions[0] = map.regionGrid.GetValidRegionAt(cell);
+				regions[1] = map.regionGrid.GetValidRegionAt(oppositeCell);
+			}
+			else
+			{
+				IntVec3 oppositeCell = cell;
+				IntVec3 adjacentCell;
+				IntVec3 diagonalCell;
+
+				if ((rotation & 1) == 0)
+				{
+				/* North or south. */
+					cell.z += rotation == 0 ? +1 : -1;
+					oppositeCell.z += rotation == 0 ? -1 : +1;
+					adjacentCell = cell;
+					adjacentCell.x += rotation == 0 ? +1 : -1;
+					diagonalCell = oppositeCell;
+					diagonalCell.x += rotation == 0 ? +1 : -1;
+				}
+				else
+				{
+				/* East or west. */
+					cell.x += rotation == 1 ? +1 : -1;
+					oppositeCell.x += rotation == 1 ? -1 : +1;
+					adjacentCell = cell;
+					adjacentCell.z += rotation == 1 ? -1 : +1;
+					diagonalCell = oppositeCell;
+					diagonalCell.z += rotation == 1 ? -1 : +1;
+				}
+
+				regions = new Region[4];
+				regions[0] = map.regionGrid.GetValidRegionAt(cell);
+				regions[1] = map.regionGrid.GetValidRegionAt(adjacentCell);
+				regions[2] = map.regionGrid.GetValidRegionAt(oppositeCell);
+				regions[3] = map.regionGrid.GetValidRegionAt(diagonalCell);
+			}
+
+			return regions;
 		}
 	}
 }
