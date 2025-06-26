@@ -79,7 +79,7 @@ namespace RimFridge
 
 			float ambientTemperature;
 
-			if (FridgeCache.TryGetFridge(cell, map, out CompRefrigerator fridge))
+			if (FridgeCacheFast.compCache[map].TryGetValue(cell, out CompRefrigerator fridge))
 			{
 				ambientTemperature = fridge.currentTemp;
 			}
