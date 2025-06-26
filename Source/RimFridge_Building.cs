@@ -61,5 +61,18 @@ namespace RimFridge
 			}
 		}
 	}
+
+	public abstract class RimFridge_WallBuilding : RimFridge_Building
+	{
+		public RimFridge_WallBuilding () : base()
+		{
+		}
+	}
+
+	public class RimFridge_DoubleSidedWallBuilding : RimFridge_WallBuilding
+	{
+		public RimFridge_DoubleSidedWallBuilding () : base()
+		{}
+	}
 }
 
