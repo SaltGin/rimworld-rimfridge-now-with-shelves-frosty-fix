@@ -60,12 +60,42 @@ namespace RimFridge
 				Scribe_Values.Look(ref this.fridgeLabel, "fridgeLabel");
 			}
 		}
+
+		public override void SpawnSetup (Map map, bool respawningAfterLoad)
+		{
+			base.SpawnSetup(map, respawningAfterLoad);
+
+			FridgeCacheFast.AddToCache(FridgeCacheFast.rimFridgeCache[map], this, GenAdj.OccupiedRect(this));
+
+		}
+
+		public override void DeSpawn (DestroyMode mode)
+		{
+			base.DeSpawn(mode);
+
+			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.rimFridgeCache[this.Map], GenAdj.OccupiedRect(this));
+		}
+		}
 	}
 
 	public abstract class RimFridge_WallBuilding : RimFridge_Building
 	{
 		public RimFridge_WallBuilding () : base()
 		{
+
+		public override void SpawnSetup (Map map, bool respawningAfterLoad)
+		{
+			base.SpawnSetup(map, respawningAfterLoad);
+
+			FridgeCacheFast.AddToCache(FridgeCacheFast.wallFridgeCache[map], this, GenAdj.OccupiedRect(this));
+		}
+
+		public override void DeSpawn (DestroyMode mode)
+		{
+			base.DeSpawn(mode);
+
+			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.wallFridgeCache[this.Map], GenAdj.OccupiedRect(this));
+		}
 		}
 	}
 
@@ -73,6 +103,20 @@ namespace RimFridge
 	{
 		public RimFridge_DoubleSidedWallBuilding () : base()
 		{}
+
+		public override void SpawnSetup (Map map, bool respawningAfterLoad)
+		{
+			base.SpawnSetup(map, respawningAfterLoad);
+
+			FridgeCacheFast.AddToCache(FridgeCacheFast.doubleSidedCache[map], this, GenAdj.OccupiedRect(this));
+		}
+
+		public override void DeSpawn (DestroyMode mode)
+		{
+			base.DeSpawn(mode);
+
+			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.doubleSidedCache[this.Map], GenAdj.OccupiedRect(this));
+		}
 	}
 }
 
