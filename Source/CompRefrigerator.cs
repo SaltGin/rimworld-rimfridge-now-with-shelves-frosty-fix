@@ -224,14 +224,15 @@ namespace RimFridge
 		{
 			base.PostSpawnSetup(respawningAfterLoad);
 
-			FridgeCache.AddFridge(this, this.parent?.Map);
+			Thing parent = this.parent;
+			FridgeCacheFast.AddToCache(FridgeCacheFast.compCache[parent.Map], this, GenAdj.OccupiedRect(parent));
 		}
 
 		public override void PostDeSpawn (Map map, DestroyMode destroyMode)
 		{
 			base.PostDeSpawn(map, destroyMode);
 
-			FridgeCache.RemoveFridge(this, map);
+			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.compCache[map], GenAdj.OccupiedRect(this.parent));
 		}
 
 		public override void PostExposeData ()
