@@ -105,9 +105,13 @@ namespace RimFridge
 				{
 					foreach (Thing thing in GridsUtility.GetThingList(cell, parent.Map))
 					{
-						if (ThingCompUtility.TryGetComp<CompFrosty>(thing) == null && drinksBestCold.Contains(thing.def.defName))
+						if (
+							   thing.def.category == ThingCategory.Item
+							&& thing is ThingWithComps thingWithComps
+							&& this.drinksBestCold.Contains(thing.def.defName)
+							&& thingWithComps.GetComp<CompFrosty>() == null
+						)
 						{
-							ThingWithComps thingWithComps = thing as ThingWithComps;
 							CompFrosty compFrosty = new CompFrosty();
 							compFrosty.parent = thingWithComps;
 							CompManipulation.AddCompTo(thingWithComps, compFrosty, CompProperties_Frosty.Beer);
