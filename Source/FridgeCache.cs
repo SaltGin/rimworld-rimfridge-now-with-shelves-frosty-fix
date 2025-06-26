@@ -4,11 +4,27 @@ using System.Runtime.CompilerServices;
 
 namespace RimFridge
 {
+	/* FridgeCache forwards to FridgeCacheFast because there are
+	   mods that use this class via reflection.
+
+	   For any mod-authors reading this:
+	   please continue using `FridgeCache` instead of `FridgeCacheFast`,
+	   I won't break the public API. */
 	public sealed class FridgeCache : MapComponent
 	{
-		private Dictionary<IntVec3, CompRefrigerator> FridgeGrid = new Dictionary<IntVec3, CompRefrigerator>();
+		private Dictionary<IntVec3, CompRefrigerator> FridgeGrid;
+		private Dictionary<IntVec3, RimFridge_Building> rimFridgeCache;
+		private Dictionary<IntVec3, RimFridge_WallBuilding> wallFridgeCache;
+		private Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding> doubleSidedCache;
 
-		public FridgeCache (Map map) : base(map) { }
+		public FridgeCache (Map map) : base(map)
+		{
+			FridgeCacheFast.compCache[map] = (this.FridgeGrid = new Dictionary<IntVec3, CompRefrigerator>());
+			FridgeCacheFast.rimFridgeCache[map] = (this.rimFridgeCache = new Dictionary<IntVec3, RimFridge_Building>());
+			FridgeCacheFast.wallFridgeCache[map] = (this.wallFridgeCache = new Dictionary<IntVec3, RimFridge_WallBuilding>());
+			FridgeCacheFast.doubleSidedCache[map] = (this.doubleSidedCache = new Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding>());
+
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool HasFridgeAt (IntVec3 cell)
@@ -24,13 +40,23 @@ namespace RimFridge
 
 		public static void AddFridge (CompRefrigerator comp, Map map)
 		{
-			var c = GetFridgeCache(map);
+			Thing parent = comp.parent;
+			CellRect cells = GenAdj.OccupiedRect(parent);
 
-			if (c != null)
+			FridgeCacheFast.AddToCache(FridgeCacheFast.compCache[map], comp, cells);
+
+			if (parent is RimFridge_Building fridge)
 			{
-				foreach (IntVec3 cell in GenAdj.OccupiedRect(comp.parent))
+				FridgeCacheFast.AddToCache(FridgeCacheFast.rimFridgeCache[map], fridge, cells);
+
+				if (parent is RimFridge_WallBuilding wallFridge)
 				{
-					c.FridgeGrid[cell] = comp;
+					FridgeCacheFast.AddToCache(FridgeCacheFast.wallFridgeCache[map], wallFridge, cells);
+
+					if (parent is RimFridge_DoubleSidedWallBuilding doubleSided)
+					{
+						FridgeCacheFast.AddToCache(FridgeCacheFast.doubleSidedCache[map], doubleSided, cells);
+					}
 				}
 			}
 		}
@@ -38,26 +64,28 @@ namespace RimFridge
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool TryGetFridge (IntVec3 cell, Map map, out CompRefrigerator comp)
 		{
-			var c = GetFridgeCache(map);
-
-			if (c != null)
-			{
-				return c.FridgeGrid.TryGetValue(cell, out comp);
-			}
-
-			comp = null;
-			return false;
+			return FridgeCacheFast.compCache[map].TryGetValue(cell, out comp);
 		}
 
 		public static void RemoveFridge (CompRefrigerator comp, Map map)
 		{
-			var c = GetFridgeCache(map);
+			Thing parent = comp.parent;
+			CellRect cells = GenAdj.OccupiedRect(parent);
 
-			if (c != null)
+			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.compCache[map], cells);
+
+			if (parent is RimFridge_Building fridge)
 			{
-				foreach (IntVec3 cell in GenAdj.OccupiedRect(comp.parent))
+				FridgeCacheFast.RemoveFromCache(FridgeCacheFast.rimFridgeCache[map], cells);
+
+				if (parent is RimFridge_WallBuilding)
 				{
-					c.FridgeGrid.Remove(cell);
+					FridgeCacheFast.RemoveFromCache(FridgeCacheFast.wallFridgeCache[map], cells);
+
+					if (parent is RimFridge_DoubleSidedWallBuilding)
+					{
+						FridgeCacheFast.RemoveFromCache(FridgeCacheFast.doubleSidedCache[map], cells);
+					}
 				}
 			}
 		}
@@ -65,6 +93,43 @@ namespace RimFridge
 		public override void ExposeData ()
 		{
 			base.ExposeData();
+		}
+
+		public override void MapRemoved ()
+		{
+			FridgeCacheFast.compCache.Remove(this.map);
+			FridgeCacheFast.rimFridgeCache.Remove(this.map);
+			FridgeCacheFast.wallFridgeCache.Remove(this.map);
+			FridgeCacheFast.doubleSidedCache.Remove(this.map);
+
+			this.FridgeGrid.Clear();
+			this.rimFridgeCache.Clear();
+			this.wallFridgeCache.Clear();
+			this.doubleSidedCache.Clear();
+		}
+	}
+
+	internal static class FridgeCacheFast
+	{
+		internal static Dictionary<Map, Dictionary<IntVec3, CompRefrigerator>> compCache;
+		internal static Dictionary<Map, Dictionary<IntVec3, RimFridge_Building>> rimFridgeCache;
+		internal static Dictionary<Map, Dictionary<IntVec3, RimFridge_WallBuilding>> wallFridgeCache;
+		internal static Dictionary<Map, Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding>> doubleSidedCache;
+
+		internal static void RemoveFromCache <T> (Dictionary<IntVec3, T> cache, CellRect cells)
+		{
+			foreach (IntVec3 cell in cells)
+			{
+				cache.Remove(cell);
+			}
+		}
+
+		internal static void AddToCache <T> (Dictionary<IntVec3, T> cache, T value, CellRect cells)
+		{
+			foreach (IntVec3 cell in cells)
+			{
+				cache[cell] = value;
+			}
 		}
 	}
 }

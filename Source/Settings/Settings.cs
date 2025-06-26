@@ -12,6 +12,14 @@ namespace RimFridge
 	{
 		public SettingsController (ModContentPack content) : base(content)
 		{
+			/* We're initialising these static fields here,
+			   instead of simply initialising them in their declaration,
+			   to avoid any runtime-level checks for ensuring that the .cctor was called. */
+			FridgeCacheFast.compCache = new Dictionary<Map, Dictionary<IntVec3, CompRefrigerator>>();
+			FridgeCacheFast.rimFridgeCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_Building>>();
+			FridgeCacheFast.wallFridgeCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_WallBuilding>>();
+			FridgeCacheFast.doubleSidedCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding>>();
+
 			base.GetSettings<Settings>();
 
 			var harmony = new Harmony("com.rimfridge.rimworld.mod");
