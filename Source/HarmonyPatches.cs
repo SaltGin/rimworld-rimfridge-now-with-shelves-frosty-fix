@@ -119,6 +119,286 @@ namespace RimFridge
 				}
 			}
 		}
+
+		public static class HandleTheProprietyOfWallFridges
+		{
+			public static bool IsThingSociallyProperForPrisonerInRoom (Thing thing, Room roomOfPawn)
+			{
+				if (!FridgeCacheFast.wallFridgeCache[thing.Map].TryGetValue(thing.Position, out RimFridge_WallBuilding wallFridge))
+				{
+					return false;
+				}
+
+				Room[] adjacentRooms = wallFridge.rooms;
+				int roomCount = adjacentRooms.Length;
+
+				for (int index = 0; index < roomCount; ++index)
+				{
+					if (adjacentRooms[index] == roomOfPawn)
+					{
+						return true;
+					}
+				}
+
+				return false;
+			}
+
+			public static bool IsSociallyProperThingInWallFridge (Thing thing, Pawn pawn, ref bool propriety)
+			{
+				if (!FridgeCacheFast.wallFridgeCache[thing.Map].TryGetValue(thing.Position, out RimFridge_WallBuilding wallFridge))
+				{
+					return false;
+				}
+
+				Room[] adjacentRooms = wallFridge.rooms;
+				int roomCount = adjacentRooms.Length;
+
+				if (thing.def == RimWorld.ThingDefOf.HemogenPack)
+				{
+					for (int index = 0; index < roomCount; ++index)
+					{
+						if (!SocialProperness.BloodfeedingPrisonerInRoom(adjacentRooms[index]))
+						{
+							propriety = true;
+							return true;
+						}
+					}
+
+					propriety = false;
+					return true;
+				}
+
+				for (int index = 0; index < roomCount; ++index)
+				{
+					if (!adjacentRooms[index].IsPrisonCell)
+					{
+						propriety = true;
+						return true;
+					}
+				}
+
+				propriety = false;
+				return true;
+			}
+
+			[HarmonyPatch(
+				typeof(SocialProperness),
+				nameof(SocialProperness.IsSociallyProper),
+				new[] {typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool)}
+			)]
+			public static class IsSociallyProperTranspiler
+			{
+				[HarmonyTranspiler]
+				static public IEnumerable<CodeInstruction> AllowABreachOfEtiquette (
+					IEnumerable<CodeInstruction> theInstructions,
+					ILGenerator il
+				)
+				{
+					/* Here we're looking for a piece of code that looks like:
+							...
+							if (forPrisoner)
+							{
+								...
+								Verse.GridsUtility.GetRoom(intVec, t.Map) == Verse.RegionAndRoomQuery.GetRoom(p)
+								...
+							}
+							...
+					   and replacing it with some code that looks like this:
+					   		...
+							if (forPrisoner)
+							{
+								...
+								Room room;
+								  Verse.GridsUtility.GetRoom(intVec, t.Map) == (room = Verse.RegionAndRoomQuery.GetRoom(p))
+								? true
+								: IsThingSociallyProperForPrisonerInRoom(t, room)
+								...
+							}
+							bool propriety;
+							if (IsSociallyProperThingInWallFridge(t, p, ref propriety))
+							{
+								return propriety;
+							}
+							...
+					*/
+
+					const int forPrisonerArgument = 2;
+
+					using IEnumerator<CodeInstruction> instructions = theInstructions.GetEnumerator();
+
+					MethodInfo getRoomOfThing = typeof(RegionAndRoomQuery).GetMethod(
+						nameof(RegionAndRoomQuery.GetRoom),
+						new[] {typeof(Thing), typeof(RegionType)}
+					);
+
+					uint patchStage = 0;
+
+					CodeInstruction instruction;
+				findRelevantInstruction:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.IsLdarg(forPrisonerArgument))
+					{
+						goto findRelevantInstruction;
+					}
+
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					if ((instruction.opcode != OpCodes.Brfalse_S) & (instruction.opcode != OpCodes.Brfalse))
+					{
+						yield return instruction;
+						goto findRelevantInstruction;
+					}
+
+					Label oldNotForPrisonerTargetLabel = (Label) instruction.operand;
+					Label newNotForPrisonerTargetLabel = il.DefineLabel();
+
+					instruction.operand = newNotForPrisonerTargetLabel;
+
+					yield return instruction;
+				findGetRoomOfThingCall:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.Calls(getRoomOfThing))
+					{
+						goto findGetRoomOfThingCall;
+					}
+
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+				findCeqAfterGetRoomOfThingCall:
+					if (instruction.opcode != OpCodes.Ceq)
+					{
+						yield return instruction;
+
+						if (instruction.StoresLocal())
+						{
+							instructions.MoveNext();
+							instruction = instructions.Current;
+
+							yield return instruction;
+
+							if (instruction.LoadsLocal())
+							{
+								instructions.MoveNext();
+								instruction = instructions.Current;
+								goto findCeqAfterGetRoomOfThingCall;
+							}
+						}
+
+						goto findRelevantInstruction;
+					}
+
+					++patchStage;
+
+					LocalBuilder roomLocal = il.DeclareLocal(typeof(Room));
+
+					yield return CodeInstruction.StoreLocal(roomLocal.LocalIndex);
+					yield return CodeInstruction.LoadLocal(roomLocal.LocalIndex);
+
+					yield return instruction;
+
+					Label callIsThingSociallyProperForPrisonerLabel = il.DefineLabel();
+					Label useRoomCheckResultLabel = il.DefineLabel();
+
+					yield return new CodeInstruction(OpCodes.Brfalse_S, callIsThingSociallyProperForPrisonerLabel);
+					yield return new CodeInstruction(OpCodes.Ldc_I4_1);
+					yield return new CodeInstruction(OpCodes.Br_S, useRoomCheckResultLabel);
+					yield return new CodeInstruction(OpCodes.Ldarg_0).LabelWith(callIsThingSociallyProperForPrisonerLabel);
+					yield return CodeInstruction.LoadLocal(roomLocal.LocalIndex);
+					yield return new CodeInstruction(
+						OpCodes.Call,
+						typeof(HandleTheProprietyOfWallFridges).GetMethod(
+							nameof(HandleTheProprietyOfWallFridges.IsThingSociallyProperForPrisonerInRoom)
+						)
+					);
+
+					instructions.MoveNext();
+					instruction = instructions.Current;
+
+					instruction.labels.Add(useRoomCheckResultLabel);
+
+					yield return instruction;
+				findNotForPrisonerTarget:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					if (!instruction.labels.Contains(oldNotForPrisonerTargetLabel))
+					{
+						yield return instruction;
+
+						goto findNotForPrisonerTarget;
+					}
+
+					LocalBuilder proprietyLocal = il.DeclareLocal(typeof(bool));
+
+					yield return new CodeInstruction(OpCodes.Ldarg_0).LabelWith(newNotForPrisonerTargetLabel);
+					yield return new CodeInstruction(OpCodes.Ldarg_1);
+					yield return CodeInstruction.LoadLocal(proprietyLocal.LocalIndex, true);
+					yield return new CodeInstruction(
+						OpCodes.Call,
+						typeof(HandleTheProprietyOfWallFridges).GetMethod(
+							nameof(HandleTheProprietyOfWallFridges.IsSociallyProperThingInWallFridge)
+						)
+					);
+					yield return new CodeInstruction(OpCodes.Brfalse_S, oldNotForPrisonerTargetLabel);
+					yield return CodeInstruction.LoadLocal(proprietyLocal.LocalIndex);
+					yield return new CodeInstruction(OpCodes.Ret);
+
+					yield return instruction;
+
+					goto findRelevantInstruction;
+				noMoreInstructions:
+					if ((patchStage != 0) & ((patchStage & 2) == 0))
+					{
+						yield break;
+					}
+
+					throw new TranspilerFallbackException("The transpiler patch for `SocialProperness.IsSociallyProper` failed to apply, so we're falling back to a slower postfix patch.");
+				}
+			}
+
+			[HarmonyPatch(
+				typeof(SocialProperness),
+				nameof(SocialProperness.IsSociallyProper),
+				new[] {typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool)}
+			)]
+			public static class IsSociallyProperPostfix
+			{
+				[HarmonyPostfix]
+				public static bool AllowABreachOfEtiquette (
+					bool isSociallyProper,
+					Thing t,
+					Pawn p,
+					bool forPrisoner
+				)
+				{
+					if (forPrisoner)
+					{
+						return isSociallyProper || IsThingSociallyProperForPrisonerInRoom(
+							t,
+							RegionAndRoomQuery.GetRoom(p)
+						);
+					}
+
+					bool propriety = false;
+
+					if (IsSociallyProperThingInWallFridge(t, p, ref propriety))
+					{
+						return propriety;
+					}
+
+					return isSociallyProper;
+				}
+			}
+		}
 	}
 
 	[HarmonyBefore(new string[] {"io.github.dametri.thermodynamicscore"})]
@@ -197,53 +477,6 @@ namespace RimFridge
 		}
 	}
 
-	[HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.TryFindBestFoodSourceFor))]
-	static class EnsureThatPrisonersGetFoodFromFridgesInPrisons
-	{
-		static void Postfix (ref bool __result, Pawn getter, Pawn eater, ref Thing foodSource, ref ThingDef foodDef)
-		{
-			if (
-				   __result == false
-				&& getter.Map != null
-				&& getter == eater
-				&& getter.RaceProps.ToolUser
-				&& getter.health.capacities.CapableOf(PawnCapacityDefOf.Manipulation))
-			{
-				Room prison = getter.Position.GetRoomOrAdjacent(getter.Map);
-
-				if (prison != null && prison.IsPrisonCell)
-				{
-					foreach (Thing t in prison.ContainedAndAdjacentThings)
-					{
-						if (
-							   t.Map != null
-							&& t is Building_Storage storage
-							&& !t.IsForbidden(getter)
-						)
-						{
-							foreach (IntVec3 cell in storage.AllSlotCells())
-							{
-								foreach (Thing possibleFood in t.Map.thingGrid.ThingsAt(cell))
-								{
-									if (
-										   getter.RaceProps.CanEverEat(possibleFood)
-										&& !possibleFood.IsForbidden(getter)
-										&& storage.Map.reservationManager.CanReserve(getter, new LocalTargetInfo(possibleFood))
-									)
-									{
-										__result = true;
-										foodSource = possibleFood;
-										foodDef = possibleFood.def;
-										return;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
 
 	public static class DisplayStackedItemsNicelyInFridges
 	{

@@ -11,6 +11,7 @@ namespace RimFridge
 	public class SettingsController : Mod
 	{
 		public static Harmony harmony;
+		public static Type appliedHandleTheProprietyOfWallFridgesPatch;
 		public SettingsController (ModContentPack content) : base(content)
 		{
 			Settings.PowerFactor = new FloatInput("RimFridge.BasePowerFactor");
@@ -28,9 +29,14 @@ namespace RimFridge
 
 			Patch(typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.SetPathEndModeForReachabilityCanReachSuchThatItemsInFridgeMayBeReached));
 			Patch(typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.SetPathEndModeForThingFromRegionListerReachableSuchThatItemsInWallFridgeMayBeReached));
+
+			appliedHandleTheProprietyOfWallFridgesPatch = PatchWithFallback(
+				typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.HandleTheProprietyOfWallFridges.IsSociallyProperTranspiler),
+				typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.HandleTheProprietyOfWallFridges.IsSociallyProperPostfix)
+			);
+
 			Patch(typeof(Patch_Thing_AmbientTemperature));
 
-			Patch(typeof(EnsureThatPrisonersGetFoodFromFridgesInPrisons));
 			Patch(typeof(DisplayStackedItemsNicelyInFridges.MungeTrueCenterOfItemsInFridges));
 			Patch(typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable));
 			Patch(typeof(AllowFridgesToActAsOrbitalTradeBeacons.LaunchItemsFromFridges));
