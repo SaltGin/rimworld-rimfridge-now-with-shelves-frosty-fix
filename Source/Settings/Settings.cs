@@ -40,20 +40,10 @@ namespace RimFridge
 
 			Patch(typeof(Patch_Thing_AmbientTemperature));
 
-			appliedMungeTrueCenterOfItemsInFridgesPatch = PatchWithFallback(
-				typeof(DisplayStackedItemsNicelyInFridges.MungeTrueCenterOfItemsInFridges.MungeItemCenterTranspiler),
-				typeof(DisplayStackedItemsNicelyInFridges.MungeTrueCenterOfItemsInFridges.MungeTrueCenterPostfix)
-			);
-
 			Patch(typeof(AllowFridgesToActAsOrbitalTradeBeacons.LaunchItemsFromFridges));
 			Patch(typeof(AllowFridgesToActAsOrbitalTradeBeacons.WorkaroundCommsConsoleStupidity));
 
 			Patch(typeof(HandleDeathPallsProperlyForCorpsesInWallFridges.TreatWallFridgesAsIndoorsIfAppropriate));
-			appliedMakeTheStackCountLabelsReadablePatch = PatchWithFallbacks(
-				typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable.OffsetTheLabelsTranspiler),
-				typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable.OffsetTheLabelsFallback),
-				typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable.OffsetTheLabelsSlowPostfix)
-			);
 
 			Patch(typeof(HacksForCompatibility.ForceTheApplicationOfSomePatches));
 
@@ -281,6 +271,7 @@ namespace RimFridge
 		public static bool ActAsBeacon = false;
 		public static bool enableFrostyBeverages = true;
 		public static int defaultMaximumItemsPerCell;
+		public static bool uglyStackAppearance;
 		public static int prisonCellSideAvoidanceStrength;
 		/* Making this a List causes access to be O(n), but we want to maintain
 			the order the patches were loaded in. */
@@ -305,6 +296,7 @@ namespace RimFridge
 			Scribe_Values.Look(ref ActAsBeacon, "RimFridge.ActAsBeacon", false, false);
 			Scribe_Values.Look(ref defaultMaximumItemsPerCell, "RimFridge.DefaultMaximumItemsPerCell", 3, false);
 			Scribe_Values.Look(ref enableFrostyBeverages, "RimFridge.EnableFrostyBeverages", true, false);
+			Scribe_Values.Look(ref uglyStackAppearance, "RimFridge.UglyStackAppearance", false, false);
 			Scribe_Values.Look(ref prisonCellSideAvoidanceStrength, "RimFridge.PrisonCellSideAvoidanceStrength", -1, false);
 			Scribe_Collections.Look(ref forcedApplicationOfPatches, "RimFridge.ForcedApplicationOfPatches", LookMode.Deep);
 
@@ -317,6 +309,40 @@ namespace RimFridge
 
 		public static void Reify ()
 		{
+			if (uglyStackAppearance)
+			{
+				if (SettingsController.appliedMungeTrueCenterOfItemsInFridgesPatch != null)
+				{
+					SettingsController.Unpatch(SettingsController.appliedMungeTrueCenterOfItemsInFridgesPatch);
+					SettingsController.appliedMungeTrueCenterOfItemsInFridgesPatch = null;
+				}
+
+				if (SettingsController.appliedMakeTheStackCountLabelsReadablePatch != null)
+				{
+					SettingsController.Unpatch(SettingsController.appliedMakeTheStackCountLabelsReadablePatch);
+					SettingsController.appliedMakeTheStackCountLabelsReadablePatch = null;
+				}
+			}
+			else
+			{
+				if (SettingsController.appliedMungeTrueCenterOfItemsInFridgesPatch == null)
+				{
+					SettingsController.appliedMungeTrueCenterOfItemsInFridgesPatch = SettingsController.PatchWithFallback(
+						typeof(DisplayStackedItemsNicelyInFridges.MungeTrueCenterOfItemsInFridges.MungeItemCenterTranspiler),
+						typeof(DisplayStackedItemsNicelyInFridges.MungeTrueCenterOfItemsInFridges.MungeTrueCenterPostfix)
+					);
+				}
+
+				if (SettingsController.appliedMakeTheStackCountLabelsReadablePatch == null)
+				{
+					SettingsController.appliedMakeTheStackCountLabelsReadablePatch = SettingsController.PatchWithFallbacks(
+						typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable.OffsetTheLabelsTranspiler),
+						typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable.OffsetTheLabelsFallback),
+						typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable.OffsetTheLabelsSlowPostfix)
+					);
+				}
+			}
+
 			ushort oldPrisonCellSideAvoidancePathFindCost = RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost;
 
 			RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost = (ushort) (
