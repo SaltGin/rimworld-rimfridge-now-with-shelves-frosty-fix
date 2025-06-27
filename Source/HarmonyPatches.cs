@@ -467,5 +467,126 @@ namespace RimFridge
 			}
 		}
 	}
+
+	internal static class CodeInstructionExtensions
+	{
+		internal static CodeInstruction LabelWith (this CodeInstruction instruction, Label label)
+		{
+			instruction.labels.Add(label);
+			return instruction;
+		}
+
+		internal static CodeInstruction TakeLabelsFrom (this CodeInstruction instruction, CodeInstruction labelSource)
+		{
+			instruction.labels.AddRange(labelSource.labels);
+			labelSource.labels.Clear();
+			return instruction;
+		}
+
+		internal static bool LoadsLocal (this CodeInstruction instruction)
+		{
+			return instruction.LoadsLocal(out int actualIndex);
+		}
+
+		internal static bool LoadsLocal (this CodeInstruction instruction, int localIndex)
+		{
+			return instruction.LoadsLocal(out int actualIndex) ? localIndex == actualIndex : false;
+		}
+
+		internal static bool LoadsLocal (this CodeInstruction instruction, out int localIndex)
+		{
+			uint opcode = (ushort) instruction.opcode.Value;
+
+			if (opcode == 0x0011) /* Ldloc_S */
+			{
+				localIndex = instruction.operand is LocalBuilder l ? l.LocalIndex : (byte) instruction.operand;
+				return true;
+			}
+			else if (opcode >= 0x0006) /* Ldloc_0 */
+			{
+				if (opcode <= 0x0009) /* Ldloc_3 */
+				{
+					localIndex = (int) (opcode - 0x0006);
+					return true;
+				}
+
+				if (opcode == 0xFE0C) /* Ldloc */
+				{
+					localIndex = instruction.operand is LocalBuilder l ? l.LocalIndex : (ushort) instruction.operand;
+					return true;
+				}
+			}
+
+			localIndex = -1;
+			return false;
+		}
+
+		internal static bool StoresLocal (this CodeInstruction instruction)
+		{
+			return instruction.StoresLocal(out int actualIndex);
+		}
+
+		internal static bool StoresLocal (this CodeInstruction instruction, int localIndex)
+		{
+			return instruction.StoresLocal(out int actualIndex) ? localIndex == actualIndex : false;
+		}
+
+		internal static bool StoresLocal (this CodeInstruction instruction, out int localIndex)
+		{
+			uint opcode = (ushort) instruction.opcode.Value;
+
+			if (opcode == 0x0013) /* Stloc_S */
+			{
+				localIndex = instruction.operand is LocalBuilder l ? l.LocalIndex : (byte) instruction.operand;
+				return true;
+			}
+			else if (opcode >= 0x000A) /* Stloc_0 */
+			{
+				if (opcode <= 0x000D) /* Stloc_3 */
+				{
+					localIndex = (int) (opcode - 0x000A);
+					return true;
+				}
+
+				if (opcode == 0xFE0E) /* Stloc */
+				{
+					localIndex = instruction.operand is LocalBuilder l ? l.LocalIndex : (ushort) instruction.operand;
+					return true;
+				}
+			}
+
+			localIndex = -1;
+			return false;
+		}
+
+		internal static bool LoadsLocalAddress (this CodeInstruction instruction)
+		{
+			return instruction.LoadsLocalAddress(out int actualIndex);
+		}
+
+		internal static bool LoadsLocalAddress (this CodeInstruction instruction, int localIndex)
+		{
+			return instruction.LoadsLocalAddress(out int actualIndex) ? localIndex == actualIndex : false;
+		}
+
+		internal static bool LoadsLocalAddress (this CodeInstruction instruction, out int localIndex)
+		{
+			uint opcode = (ushort) instruction.opcode.Value;
+
+			if (opcode == 0x0012) /* Ldloca_S */
+			{
+				localIndex = instruction.operand is LocalBuilder l ? l.LocalIndex : (byte) instruction.operand;
+				return true;
+			}
+			else if (opcode == 0xFE0D) /* Ldloca */
+			{
+				localIndex = instruction.operand is LocalBuilder l ? l.LocalIndex : (ushort) instruction.operand;
+				return true;
+			}
+
+			localIndex = -1;
+			return false;
+		}
+	}
 }
 
