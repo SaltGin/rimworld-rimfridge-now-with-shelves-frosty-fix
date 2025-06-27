@@ -27,35 +27,96 @@ namespace RimFridge
 		{}
 	}
 
-	[HarmonyPatch(
-		typeof(Reachability),
-		nameof(Reachability.CanReach),
-		new[] {typeof(IntVec3), typeof(LocalTargetInfo), typeof(PathEndMode), typeof(TraverseParms)})
-	]
 	public static class EnsureThatItemsInAFridgeCanBeReachedByPawns
 	{
-		/* At first glance this patch looks as though it's for path-finding.
-		   But it's really for allowing items in fridges to be considered reachable
-		   in the menu that pops up when an item in a fridge is right-clicked. */
-
-		public static readonly AccessTools.FieldRef<Reachability, Map> mapOfReachability = (
-			AccessTools.FieldRefAccess<Reachability, Map>("map")
-		);
-
-		[HarmonyPrefix]
-		public static void SetPathEndModeSuchThatFridgeCanBeReached (
-			Reachability __instance,
-			LocalTargetInfo dest,
-			ref PathEndMode peMode
-		)
+		[HarmonyPatch(
+			typeof(Reachability),
+			nameof(Reachability.CanReach),
+			new[] {typeof(IntVec3), typeof(LocalTargetInfo), typeof(PathEndMode), typeof(TraverseParms)}
+		)]
+		public static class SetPathEndModeForReachabilityCanReachSuchThatItemsInFridgeMayBeReached
 		{
-			if (
-				   peMode != PathEndMode.Touch
-				&& dest.Thing?.def.category == ThingCategory.Item
-				&& FridgeCache.GetFridgeCache(mapOfReachability(__instance))?.HasFridgeAt(dest.Cell) == true
+			public static readonly AccessTools.FieldRef<Reachability, Map> mapOfReachability = (
+				AccessTools.FieldRefAccess<Reachability, Map>("map")
+			);
+
+			[HarmonyPrefix]
+			public static void SetPathEndModeSuchThatItemsInFridgeMayBeReached (
+				Reachability __instance,
+				LocalTargetInfo dest,
+				ref PathEndMode peMode,
+				TraverseParms traverseParams
 			)
 			{
-				peMode = PathEndMode.Touch;
+				if (
+					   dest.Thing?.def.category == ThingCategory.Item
+					&& FridgeCacheFast.rimFridgeCache[mapOfReachability(__instance)].TryGetValue(
+						dest.Cell,
+						out RimFridge_Building rimFridge
+					)
+				)
+				{
+					PathEndMode touchMode = peMode == PathEndMode.OnCell ? PathEndMode.Touch : peMode;
+
+					peMode = (
+						  (rimFridge.packedState & RimFridge_Building.Flags.itemsRequirePathEndModeOfTouch) != 0
+						? touchMode
+						: peMode
+					);
+
+					if (rimFridge.ForbidsUsageByAnimals)
+					{
+						Pawn pawn = traverseParams.pawn;
+						peMode = (
+							  pawn == null || pawn.RaceProps.Humanlike || pawn.IsColonyMechPlayerControlled
+							? touchMode
+							: PathEndMode.None
+						);
+					}
+				}
+			}
+		}
+
+		[HarmonyPatch(
+			typeof(ReachabilityWithinRegion),
+			nameof(ReachabilityWithinRegion.ThingFromRegionListerReachable),
+			new[] {typeof(Thing), typeof(Region), typeof(PathEndMode), typeof(Pawn)}
+		)]
+		public static class SetPathEndModeForThingFromRegionListerReachableSuchThatItemsInWallFridgeMayBeReached
+		{
+			[HarmonyPrefix]
+			public static void SetPathEndModeSuchThatItemsInFridgeMayBeReached (
+				Thing thing,
+				Region region,
+				ref PathEndMode peMode,
+				Pawn traveler
+			)
+			{
+				if (
+					   thing.def.category == ThingCategory.Item
+					&& FridgeCacheFast.rimFridgeCache[region.Map].TryGetValue(
+						thing.Position,
+						out RimFridge_Building rimFridge
+					)
+				)
+				{
+					PathEndMode touchMode = peMode == PathEndMode.OnCell ? PathEndMode.Touch : peMode;
+
+					peMode = (
+						  (rimFridge.packedState & RimFridge_Building.Flags.itemsRequirePathEndModeOfTouch) != 0
+						? touchMode
+						: peMode
+					);
+
+					if (rimFridge.ForbidsUsageByAnimals)
+					{
+						peMode = (
+							  traveler == null || traveler.RaceProps.Humanlike || traveler.IsColonyMechPlayerControlled
+							? touchMode
+							: PathEndMode.None
+						);
+					}
+				}
 			}
 		}
 	}

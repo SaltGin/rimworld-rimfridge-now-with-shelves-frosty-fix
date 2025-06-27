@@ -26,7 +26,8 @@ namespace RimFridge
 			FridgeCacheFast.wallFridgeCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_WallBuilding>>();
 			FridgeCacheFast.doubleSidedCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding>>();
 
-			Patch(typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns));
+			Patch(typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.SetPathEndModeForReachabilityCanReachSuchThatItemsInFridgeMayBeReached));
+			Patch(typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.SetPathEndModeForThingFromRegionListerReachableSuchThatItemsInWallFridgeMayBeReached));
 			Patch(typeof(Patch_Thing_AmbientTemperature));
 			Patch(typeof(Patch_PassingShip_TryOpenComms));
 			Patch(typeof(EnsureThatPrisonersGetFoodFromFridgesInPrisons));

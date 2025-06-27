@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
 	<ThingDef Name="WallFridgeBase" ParentName="FridgeBase" Abstract="True">
+		<thingClass>RimFridge.RimFridge_WallBuilding</thingClass>
 		<designatorDropdown>WallFridgeDesignatorDropdownDef</designatorDropdown>
 		<passability>Impassable</passability>
 		<blockWind>true</blockWind>
