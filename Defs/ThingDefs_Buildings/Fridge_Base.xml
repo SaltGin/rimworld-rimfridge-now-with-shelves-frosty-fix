@@ -31,6 +31,7 @@
 		</thingCategories>
 		<building>
 			<blueprintClass>Blueprint_Storage</blueprintClass>
+			<storageGroupTag>RimFridge</storageGroupTag>
 			<preventDeteriorationInside>true</preventDeteriorationInside>
 			<preventDeteriorationOnTop>true</preventDeteriorationOnTop>
 			<ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
