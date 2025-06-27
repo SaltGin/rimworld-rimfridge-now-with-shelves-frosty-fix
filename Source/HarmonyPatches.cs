@@ -14,6 +14,19 @@ using Verse.Sound;
 
 namespace RimFridge
 {
+	[Serializable]
+	internal class TranspilerFallbackException : Exception
+	{
+		public TranspilerFallbackException ()
+		{}
+
+		public TranspilerFallbackException (string message) : base(message)
+		{}
+
+		public TranspilerFallbackException (string message, Exception innerException) : base (message, innerException)
+		{}
+	}
+
 	[HarmonyPatch(
 		typeof(Reachability),
 		nameof(Reachability.CanReach),

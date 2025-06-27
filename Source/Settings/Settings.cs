@@ -10,8 +10,14 @@ namespace RimFridge
 {
 	public class SettingsController : Mod
 	{
+		public static Harmony harmony;
 		public SettingsController (ModContentPack content) : base(content)
 		{
+			Settings.PowerFactor = new FloatInput("RimFridge.BasePowerFactor");
+			Settings.forcedApplicationOfPatches = new();
+
+			harmony = new Harmony("com.rimfridge.rimworld.mod");
+
 			/* We're initialising these static fields here,
 			   instead of simply initialising them in their declaration,
 			   to avoid any runtime-level checks for ensuring that the .cctor was called. */
@@ -20,29 +26,126 @@ namespace RimFridge
 			FridgeCacheFast.wallFridgeCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_WallBuilding>>();
 			FridgeCacheFast.doubleSidedCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding>>();
 
+			Patch(typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns));
+			Patch(typeof(Patch_Thing_AmbientTemperature));
+			Patch(typeof(Patch_PassingShip_TryOpenComms));
+			Patch(typeof(EnsureThatPrisonersGetFoodFromFridgesInPrisons));
+			Patch(typeof(DisplayStackedItemsNicelyInFridges.MungeTrueCenterOfItemsInFridges));
+			Patch(typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable));
+			Patch(typeof(HacksForCompatibility.ForceTheApplicationOfSomePatches));
+
 			base.GetSettings<Settings>();
+		}
 
-			var harmony = new Harmony("com.rimfridge.rimworld.mod");
+		internal static void Patch (Type type)
+		{
+			try
+			{
+				harmony.CreateClassProcessor(type).Patch();
+			}
+			catch (Exception e)
+			{
+				Logger.Error(e.ToString());
+			}
+		}
 
-			var patch = (Type type) =>
+		internal static void Unpatch (Type type)
+		{
+			try
+			{
+				harmony.CreateClassProcessor(type).Unpatch();
+			}
+			catch (Exception e)
+			{
+				Logger.Error(e.ToString());
+			}
+		}
+
+		internal static Type PatchWithFallback (Type ideal, Type fallback)
+		{
+			try
 			{
 				try
 				{
-					harmony.CreateClassProcessor(type).Patch();
+					harmony.CreateClassProcessor(ideal).Patch();
+					return ideal;
 				}
-				catch (Exception e)
+				catch (Exception inner)
 				{
-					Logger.Error(e.ToString());
-				}
-			};
+					if (inner is TranspilerFallbackException)
+					{
+						Logger.Warning(inner.ToString());
+					}
+					else
+					{
+						Logger.Error(inner.ToString());
+					}
 
-			patch(typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns));
-			patch(typeof(Patch_Thing_AmbientTemperature));
-			patch(typeof(Patch_PassingShip_TryOpenComms));
-			patch(typeof(EnsureThatPrisonersGetFoodFromFridgesInPrisons));
-			patch(typeof(DisplayStackedItemsNicelyInFridges.MungeTrueCenterOfItemsInFridges));
-			patch(typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable));
-			patch(typeof(HacksForCompatibility.ForceTheApplicationOfSomePatches));
+					Logger.Warning($"Failed to apply `{ideal.FullName}`, falling back to `{fallback.FullName}`.");
+
+					harmony.CreateClassProcessor(fallback).Patch();
+					return fallback;
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.Error(e.ToString());
+			}
+
+			return null;
+		}
+
+		internal static Type PatchWithFallbacks (Type ideal, Type fallback0, Type fallback1)
+		{
+			try
+			{
+				try
+				{
+					harmony.CreateClassProcessor(ideal).Patch();
+					return ideal;
+				}
+				catch (Exception inner0)
+				{
+					if (inner0 is TranspilerFallbackException)
+					{
+						Logger.Warning(inner0.ToString());
+					}
+					else
+					{
+						Logger.Error(inner0.ToString());
+					}
+
+					Logger.Warning($"Failed to apply `{ideal.FullName}`, falling back to `{fallback0.FullName}`.");
+
+					try
+					{
+						harmony.CreateClassProcessor(fallback0).Patch();
+						return fallback0;
+					}
+					catch (Exception inner1)
+					{
+						if (inner1 is TranspilerFallbackException)
+						{
+							Logger.Warning(inner1.ToString());
+						}
+						else
+						{
+							Logger.Error(inner1.ToString());
+						}
+
+						Logger.Warning($"Failed to apply `{fallback0.FullName}`, falling back to `{fallback1.FullName}`.");
+
+						harmony.CreateClassProcessor(fallback1).Patch();
+						return fallback1;
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.Error(e.ToString());
+			}
+
+			return null;
 		}
 
 		public override string SettingsCategory ()
