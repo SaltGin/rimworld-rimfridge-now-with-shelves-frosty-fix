@@ -430,6 +430,17 @@ namespace RimFridge
 		public RimFridge_DoubleSidedWallBuilding () : base()
 		{}
 
+		public override void ReactToChangeOfRegionsAndRooms ()
+		{
+			base.ReactToChangeOfRegionsAndRooms();
+			this.RectifyPrisonCellSideToAvoidStatus();
+		}
+
+		public void ReactToChangeOfPrisonCellStatusForRoom ()
+		{
+			this.RectifyPrisonCellSideToAvoidStatus();
+		}
+
 		public override void SpawnSetup (Map map, bool respawningAfterLoad)
 		{
 			base.SpawnSetup(map, respawningAfterLoad);
@@ -510,6 +521,101 @@ namespace RimFridge
 			}
 
 			return regions;
+		}
+
+		public void RectifyPrisonCellSideToAvoidStatus ()
+		{
+			Room[] adjacentRooms = this.rooms;
+			int roomCount = adjacentRooms.Length;
+			Room prisonCell = null;
+			int state = 0;
+
+			for (int index = 0; index < roomCount; ++index)
+			{
+				Room room = adjacentRooms[index];
+				int isPrisonCell = room.IsPrisonCell ? 1 : 0;
+				prisonCell = isPrisonCell != 0 ? room : prisonCell;
+				state |= 1 << isPrisonCell;
+			}
+
+			if (state == 0b11)
+			{
+				this.prisonCellSideToAvoid = prisonCell;
+
+				int sizeX = this.def.size.x - 1;
+
+				IntVec3 cell = this.Position;
+				Map map = this.Map;
+				IntVec3 adjacentCell;
+				int rotation = this.Rotation.AsInt;
+
+				if ((rotation & 1) == 0)
+				{
+				/* South or north. */
+					--cell.z;
+					/* If this is a south-facing 2x1 fridge, decrement x by 1.  */
+					cell.x -= (rotation == 2 ? 1 : 0) & sizeX;
+
+					if (cell.GetRoom(map) == prisonCell)
+					{
+						goto prisonCellIsSouth;
+					}
+					else if (sizeX != 0)
+					{
+						adjacentCell = cell;
+						++adjacentCell.x;
+
+						if (adjacentCell.GetRoom(map) == prisonCell)
+						{
+							goto prisonCellIsSouth;
+						}
+					}
+
+					cell.z += 2;
+				prisonCellIsSouth:
+					this.pathFindCostCellRect.minX = cell.x - 1;
+					this.pathFindCostCellRect.maxX = cell.x + sizeX + 1;
+					this.pathFindCostCellRect.minZ = cell.z;
+					this.pathFindCostCellRect.maxZ = cell.z;
+				}
+				else
+				{
+				/* East or west. */
+					--cell.x;
+					/* If this is a east-facing 2x1 fridge, decrement z by 1.  */
+					cell.z -= (rotation == 1 ? 1 : 0) & sizeX;
+
+					if (cell.GetRoom(map) == prisonCell)
+					{
+						goto prisonCellIsWest;
+					}
+					else if (sizeX != 0)
+					{
+						adjacentCell = cell;
+						++adjacentCell.z;
+
+						if (adjacentCell.GetRoom(map) == prisonCell)
+						{
+							goto prisonCellIsWest;
+						}
+					}
+
+					cell.x += 2;
+				prisonCellIsWest:
+					this.pathFindCostCellRect.minX = cell.x;
+					this.pathFindCostCellRect.maxX = cell.x;
+					this.pathFindCostCellRect.minZ = cell.z - 1;
+					this.pathFindCostCellRect.maxZ = cell.z + sizeX + 1;
+				}
+
+				return;
+			}
+
+			this.prisonCellSideToAvoid = null;
+			this.pathFindCostCellRect.minX = 0;
+			this.pathFindCostCellRect.minZ = 0;
+			this.pathFindCostCellRect.maxX = 0;
+			this.pathFindCostCellRect.maxZ = 0;
 		}
 	}
 }

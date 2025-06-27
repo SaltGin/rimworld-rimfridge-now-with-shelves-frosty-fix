@@ -147,5 +147,16 @@ namespace RimFridge
 			}
 		}
 	}
+
+	internal static class PrisonCellStateTracking
+	{
+		internal static void ReactToChangeOfPrisonCellStatusForRoom (Room room, bool isPrisonCell)
+		{
+			foreach (RimFridge_DoubleSidedWallBuilding doubleSided in FridgeCacheFast.doubleSidedCache[room.Map].Values)
+			{
+				doubleSided.ReactToChangeOfPrisonCellStatusForRoom();
+			}
+		}
+	}
 }
 

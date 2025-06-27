@@ -56,6 +56,8 @@ namespace RimFridge
 
 			Patch(typeof(HacksForCompatibility.ForceTheApplicationOfSomePatches));
 
+			Patch(typeof(PrisonCellChangeTracking.TrackChangeOfPrisonCellStatusForRoom));
+
 			base.GetSettings<Settings>();
 		}
 

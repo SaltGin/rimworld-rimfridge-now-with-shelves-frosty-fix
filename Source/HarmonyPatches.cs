@@ -402,6 +402,36 @@ namespace RimFridge
 		}
 	}
 
+
+	static class PrisonCellChangeTracking
+	{
+		[HarmonyPatch(
+			typeof(Room),
+			nameof(Room.Notify_RoomShapeChanged),
+			new Type[0]
+		)]
+		public static class TrackChangeOfPrisonCellStatusForRoom
+		{
+			[HarmonyPrefix]
+			public static void TrackChangeOfPrisonCellStatusPre (Room __instance, ref bool __state)
+			{
+				__state = __instance.IsPrisonCell;
+			}
+
+			[HarmonyPostfix]
+			public static void TrackChangeOfPrisonCellStatusPost (Room __instance, bool __state)
+			{
+				bool isPrisonCell = __instance.IsPrisonCell;
+
+				if (isPrisonCell != __state)
+				{
+					PrisonCellStateTracking.ReactToChangeOfPrisonCellStatusForRoom(__instance, isPrisonCell);
+				}
+			}
+		}
+	}
+
+
 	[HarmonyBefore(new string[] {"io.github.dametri.thermodynamicscore"})]
 	[HarmonyPriority(Priority.First)]
 	[HarmonyPatch(typeof(Thing), "AmbientTemperature", MethodType.Getter)]
