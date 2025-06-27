@@ -105,7 +105,9 @@ namespace RimFridge
 		{
 			base.CompTickRare();
 
-			if (!this.parent.Spawned)
+			Thing parent = this.parent;
+
+			if (!parent.Spawned)
 			{
 				return;
 			}
@@ -193,7 +195,7 @@ namespace RimFridge
 					changeEnergy -= change * 1.25f;
 				}
 
-				powerMultiplier = change * -1f;
+				powerMultiplier = -change;
 			}
 
 			// Like all refrigerators, the RimFridge is insulated.  It won't instantly drop to room-temp from loss of power and things inside
