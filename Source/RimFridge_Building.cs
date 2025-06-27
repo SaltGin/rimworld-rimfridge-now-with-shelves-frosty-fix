@@ -15,8 +15,14 @@ namespace RimFridge
 		public RimFridge_Building () : base()
 		{}
 
+		internal uint packedState;
 		internal int maximumItemsPerCell;
 		public string fridgeLabel;
+
+		internal static class Flags
+		{
+			internal const uint itemsRequirePathEndModeOfTouch = 1 << 0;
+		}
 
 
 		public override int MaxItemsInCell
@@ -260,6 +266,7 @@ namespace RimFridge
 	{
 		public RimFridge_WallBuilding () : base()
 		{
+			this.packedState |= Flags.itemsRequirePathEndModeOfTouch;
 		}
 
 		public override void ReactToChangeOfRegionsAndRooms ()
