@@ -443,8 +443,8 @@ namespace RimFridge
 
 			if (
 				   (p == null || p.Dead)
-				&& __instance.Map != null
-				&& FridgeCache.TryGetFridge(__instance.Position, __instance.Map, out CompRefrigerator fridge)
+				&& __instance.Map is {} map
+				&& FridgeCacheFast.compCache[map].TryGetValue(__instance.Position, out CompRefrigerator fridge)
 				&& fridge != null
 			)
 			{
