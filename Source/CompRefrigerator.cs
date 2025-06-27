@@ -100,35 +100,48 @@ namespace RimFridge
 
 			if (Settings.enableFrostyBeverages)
 			{
+				ThingGrid thingGrid = parent.Map.thingGrid;
+
 				/* Check for beverages which are best enjoyed cold. */
 				foreach (IntVec3 cell in ((Building_Storage) parent).AllSlotCells())
 				{
-					foreach (Thing thing in GridsUtility.GetThingList(cell, parent.Map))
-					{
-						if (
-							   thing.def.category == ThingCategory.Item
-							&& thing is ThingWithComps thingWithComps
-							&& this.drinksBestCold.Contains(thing.def.defName)
-							&& thingWithComps.GetComp<CompFrosty>() == null
-						)
-						{
-							CompFrosty compFrosty = new CompFrosty();
-							compFrosty.parent = thingWithComps;
-							CompManipulation.AddCompTo(thingWithComps, compFrosty, CompProperties_Frosty.Beer);
+					List<Thing> thingList = thingGrid.ThingsListAtFast(cell);
+					int thingCount = thingList.Count;
 
-							/* If this thing's ticker-type is rare,
-							   it will have already been registered in the rare-tick-list
-							   by `Thing#SpawnSetup`; if so we won't register it again. */
-							if (thingWithComps.def.tickerType != TickerType.Rare)
+					if (thingCount > 1)
+					{
+						int index = 0;
+
+						do
+						{
+							Thing thing = thingList[index];
+							ThingDef def = thing.def;
+
+							if (
+								   def.category == ThingCategory.Item
+								&& thing is ThingWithComps thingWithComps
+								&& this.drinksBestCold.Contains(def.defName)
+								&& thingWithComps.GetComp<CompFrosty>() == null
+							)
 							{
-								CompFrosty.tickListRareOfTickManager(Find.TickManager).RegisterThing(thingWithComps);
+								CompFrosty compFrosty = new CompFrosty();
+								compFrosty.parent = thingWithComps;
+								CompManipulation.AddCompTo(thingWithComps, compFrosty, CompProperties_Frosty.Beer);
+
+								/* If this thing's ticker-type is rare,
+								   it will have already been registered in the rare-tick-list
+								   by `Thing#SpawnSetup`; if so we won't register it again. */
+								if (def.tickerType != TickerType.Rare)
+								{
+									CompFrosty.tickListRareOfTickManager(Find.TickManager).RegisterThing(thingWithComps);
+								}
 							}
 						}
+						while (++index < thingCount);
 					}
 				}
 			}
 
-			//Get the actual temperature at the fridge, since we're patching the game's method.
 			//These call the internal functions of GenTemperature.TryGetTemperatureForCell()
 
 			IntVec3 position = parent.Position;
