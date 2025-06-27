@@ -290,15 +290,15 @@ namespace RimFridge
 
 	internal class Settings : ModSettings
 	{
-		public static readonly FloatInput PowerFactor = new FloatInput("RimFridge.BasePowerFactor");
-		public static bool ActAsBeacon = false;
-		public static bool enableFrostyBeverages = true;
+		public static FloatInput PowerFactor;
+		public static bool ActAsBeacon;
 		public static int defaultMaximumItemsPerCell;
+		public static bool enableFrostyBeverages;
 		public static bool uglyStackAppearance;
 		public static int prisonCellSideAvoidanceStrength;
 		/* Making this a List causes access to be O(n), but we want to maintain
 			the order the patches were loaded in. */
-		public static List<ApplicationOfPatch> forcedApplicationOfPatches = new();
+		public static List<ApplicationOfPatch> forcedApplicationOfPatches;
 
 		internal class ApplicationOfPatch : IExposable
 		{
