@@ -40,6 +40,7 @@ namespace RimFridge
 			Patch(typeof(DisplayStackedItemsNicelyInFridges.MungeTrueCenterOfItemsInFridges));
 			Patch(typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable));
 			Patch(typeof(AllowFridgesToActAsOrbitalTradeBeacons.LaunchItemsFromFridges));
+			Patch(typeof(AllowFridgesToActAsOrbitalTradeBeacons.WorkaroundCommsConsoleStupidity));
 
 			Patch(typeof(HacksForCompatibility.ForceTheApplicationOfSomePatches));
 

@@ -475,6 +475,125 @@ namespace RimFridge
 				}
 			}
 		}
+
+		[HarmonyPatch]
+		public static class WorkaroundCommsConsoleStupidity
+		{
+			[HarmonyTargetMethods]
+			static public IEnumerable<MethodBase> FindDelegates ()
+			{
+				foreach (Type nestedType in typeof(PassingShip).GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Static))
+				{
+					foreach (MethodInfo method in nestedType.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance))
+					{
+						if (method.ReturnType == typeof(void) && method.GetParameters().Length == 0)
+						{
+							yield return method;
+						}
+					}
+				}
+			}
+
+			[HarmonyTranspiler]
+			static public IEnumerable<CodeInstruction> AllowCommsToBeInitiatedWithOnlyFridges (
+				IEnumerable<CodeInstruction> instructions,
+				MethodBase method
+			)
+			{
+				/* Here we're looking for a piece of code that looks like:
+						if (!System.Linq.Enumerable.Any(RimWorld.Building_OrbitalTradeBeacon.AllPowered(this.Map)))
+						{
+							Verse.Messages.Message(Verse.Translator.Translate("MessageNeedBeaconToTradeWithShip"), console, RimWorld.MessageTypeDefOf.RejectInput, historical: false);
+						}
+						else
+						{
+							console.GiveUseCommsJob(negotiator, this);
+						}
+				   and adding to the if-condition:
+						&& !FridgesAllowCommsToBeInitiatedWithPassingShip(this)
+
+				   This code is defined in an anonymous delegate, hence `FindDelegates`
+				   and the following code searching for a singular `PassingShip` field.
+				*/
+
+				FieldInfo passingShipCapture = null;
+
+				foreach (FieldInfo field in method.DeclaringType.GetFields(BindingFlags.Public | BindingFlags.Instance))
+				{
+					if (field.FieldType == typeof(PassingShip))
+					{
+						if (passingShipCapture != null)
+						{
+							goto irrelevantMethod;
+						}
+
+						passingShipCapture = field;
+					}
+				}
+
+				if (passingShipCapture == null)
+				{
+					goto irrelevantMethod;
+				}
+
+				CodeInstruction previous = null;
+
+				foreach (CodeInstruction instruction in instructions)
+				{
+					/* This is a very unimportant issue, so I'm not doing anything more complex than this. */
+					if (
+						   instruction.LoadsConstant("MessageNeedBeaconToTradeWithShip")
+						&& previous != null
+						&& previous.Branches(out Label? foundBeaconsLabel)
+						&& foundBeaconsLabel.HasValue
+					)
+					{
+						yield return new CodeInstruction(OpCodes.Ldarg_0);
+						yield return new CodeInstruction(OpCodes.Ldfld, passingShipCapture);
+						yield return new CodeInstruction(
+							OpCodes.Call,
+							typeof(WorkaroundCommsConsoleStupidity).GetMethod(
+								nameof(WorkaroundCommsConsoleStupidity.FridgesAllowCommsToBeInitiatedWithPassingShip)
+							)
+						);
+						yield return new CodeInstruction(OpCodes.Brtrue, foundBeaconsLabel.Value);
+					}
+
+					yield return instruction;
+
+					previous = instruction;
+				}
+
+				yield break;
+			irrelevantMethod:
+				foreach (CodeInstruction instruction in instructions)
+				{
+					yield return instruction;
+				}
+			}
+
+			static public bool FridgesAllowCommsToBeInitiatedWithPassingShip (PassingShip passingShip)
+			{
+				if (!Settings.ActAsBeacon)
+				{
+					return false;
+				}
+
+				Map map = passingShip.Map;
+
+				foreach (RimFridge_Building fridge in FridgeCacheFast.rimFridgeCache[map].Values)
+				{
+					RimWorld.CompPowerTrader powerComp = fridge.GetComp<RimWorld.CompPowerTrader>();
+
+					if (powerComp == null || powerComp.PowerOn)
+					{
+						return true;
+					}
+				}
+
+				return false;
+			}
+		}
 	}
 
 
