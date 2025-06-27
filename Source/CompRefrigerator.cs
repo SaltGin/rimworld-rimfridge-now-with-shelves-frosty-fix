@@ -264,12 +264,23 @@ namespace RimFridge
 			base.PostSpawnSetup(respawningAfterLoad);
 
 			Thing parent = this.parent;
-			FridgeCacheFast.AddToCache(FridgeCacheFast.compCache[parent.Map], this, GenAdj.OccupiedRect(parent));
+
+			FridgeCacheFast.AddToCache(
+				FridgeCacheFast.compCache[parent.Map],
+				FridgeCacheFast.compList[parent.Map],
+				this,
+				GenAdj.OccupiedRect(parent)
+			);
 		}
 
 		public override void PostDeSpawn (Map map, DestroyMode destroyMode)
 		{
-			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.compCache[map], GenAdj.OccupiedRect(this.parent));
+			FridgeCacheFast.RemoveFromCache(
+				FridgeCacheFast.compCache[map],
+				FridgeCacheFast.compList[map],
+				this,
+				GenAdj.OccupiedRect(this.parent)
+			);
 
 			base.PostDeSpawn(map, destroyMode);
 		}

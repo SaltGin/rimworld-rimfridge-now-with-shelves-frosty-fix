@@ -29,6 +29,10 @@ namespace RimFridge
 			FridgeCacheFast.rimFridgeCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_Building>>();
 			FridgeCacheFast.wallFridgeCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_WallBuilding>>();
 			FridgeCacheFast.doubleSidedCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding>>();
+			FridgeCacheFast.compList = new Dictionary<Map, List<CompRefrigerator>>();
+			FridgeCacheFast.rimFridgeList = new Dictionary<Map, List<RimFridge_Building>>();
+			FridgeCacheFast.wallFridgeList = new Dictionary<Map, List<RimFridge_WallBuilding>>();
+			FridgeCacheFast.doubleSidedList = new Dictionary<Map, List<RimFridge_DoubleSidedWallBuilding>>();
 
 			Patch(typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.SetPathEndModeForReachabilityCanReachSuchThatItemsInFridgeMayBeReached));
 			Patch(typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.SetPathEndModeForThingFromRegionListerReachableSuchThatItemsInWallFridgeMayBeReached));

@@ -307,14 +307,24 @@ namespace RimFridge
 		{
 			base.SpawnSetup(map, respawningAfterLoad);
 
-			FridgeCacheFast.AddToCache(FridgeCacheFast.rimFridgeCache[map], this, GenAdj.OccupiedRect(this));
+			FridgeCacheFast.AddToCache(
+				FridgeCacheFast.rimFridgeCache[map],
+				FridgeCacheFast.rimFridgeList[map],
+				this,
+				GenAdj.OccupiedRect(this)
+			);
 
 			this.ReactToChangeOfRegionsAndRooms();
 		}
 
 		public override void DeSpawn (DestroyMode mode)
 		{
-			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.rimFridgeCache[this.Map], GenAdj.OccupiedRect(this));
+			FridgeCacheFast.RemoveFromCache(
+				FridgeCacheFast.rimFridgeCache[this.Map],
+				FridgeCacheFast.rimFridgeList[this.Map],
+				this,
+				GenAdj.OccupiedRect(this)
+			);
 
 			this.rooms = null;
 
@@ -428,12 +438,22 @@ namespace RimFridge
 		{
 			base.SpawnSetup(map, respawningAfterLoad);
 
-			FridgeCacheFast.AddToCache(FridgeCacheFast.wallFridgeCache[map], this, GenAdj.OccupiedRect(this));
+			FridgeCacheFast.AddToCache(
+				FridgeCacheFast.wallFridgeCache[map],
+				FridgeCacheFast.wallFridgeList[map],
+				this,
+				GenAdj.OccupiedRect(this)
+			);
 		}
 
 		public override void DeSpawn (DestroyMode mode)
 		{
-			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.wallFridgeCache[this.Map], GenAdj.OccupiedRect(this));
+			FridgeCacheFast.RemoveFromCache(
+				FridgeCacheFast.wallFridgeCache[this.Map],
+				FridgeCacheFast.wallFridgeList[this.Map],
+				this,
+				GenAdj.OccupiedRect(this)
+			);
 
 			base.DeSpawn(mode);
 		}
@@ -569,12 +589,22 @@ namespace RimFridge
 		{
 			base.SpawnSetup(map, respawningAfterLoad);
 
-			FridgeCacheFast.AddToCache(FridgeCacheFast.doubleSidedCache[map], this, GenAdj.OccupiedRect(this));
+			FridgeCacheFast.AddToCache(
+				FridgeCacheFast.doubleSidedCache[map],
+				FridgeCacheFast.doubleSidedList[map],
+				this,
+				GenAdj.OccupiedRect(this)
+			);
 		}
 
 		public override void DeSpawn (DestroyMode mode)
 		{
-			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.doubleSidedCache[this.Map], GenAdj.OccupiedRect(this));
+			FridgeCacheFast.RemoveFromCache(
+				FridgeCacheFast.doubleSidedCache[this.Map],
+				FridgeCacheFast.doubleSidedList[this.Map],
+				this,
+				GenAdj.OccupiedRect(this)
+			);
 
 			base.DeSpawn(mode);
 		}
