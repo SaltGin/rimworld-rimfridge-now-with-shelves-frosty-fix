@@ -8,7 +8,7 @@
 		<staticSunShadowHeight>1.0</staticSunShadowHeight>
 		<fillPercent>1</fillPercent>
 		<coversFloor>true</coversFloor>
-		<blockLight>true</blockLight>
+		<blockLight>false</blockLight>
 		<drawStyleCategory>Walls</drawStyleCategory>
 		<canOverlapZones>false</canOverlapZones>
 		<holdsRoof>true</holdsRoof>
