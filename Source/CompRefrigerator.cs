@@ -157,16 +157,8 @@ namespace RimFridge
 			// This bit will work for normal furniture RimFridges
 			if  (!GenTemperature.TryGetDirectAirTemperatureForCell(position, map, out roomTemperature))
 			{
-				List<Thing> list = map.thingGrid.ThingsListAtFast(position);
-
-				for (int i = 0; i < list.Count; i++)
-				{
-					if (list[i].def.passability == Traversability.Impassable)
-					{
-						// This is if it's a wall-mount RimFridge and not part of a "room"
-						GenTemperature.TryGetAirTemperatureAroundThing(list[i], out roomTemperature);
-					}
-				}
+				// This is if it's a wall-mount RimFridge and not part of a "room"
+				GenTemperature.TryGetAirTemperatureAroundThing(parent, out roomTemperature);
 			}
 
 			float changetemperature = (roomTemperature - currentTemp) * 0.01f;
