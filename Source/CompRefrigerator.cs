@@ -8,6 +8,12 @@ using System.Collections.Generic;
 
 namespace RimFridge
 {
+	public interface ICompRefrigeratorParent
+	{
+		public float GetTemperatureOfSurroundings (CompRefrigerator comp);
+		public void PushTransferredAndGeneratedHeat (float energy, CompRefrigerator comp);
+	}
+
 	public sealed class CompRefrigerator : ThingComp
 	{
 		public float desiredTemp;
