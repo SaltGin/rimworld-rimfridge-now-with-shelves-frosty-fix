@@ -8,7 +8,7 @@ using Verse.Sound;
 
 namespace RimFridge
 {
-	class RimFridge_Building : Building_Storage, ICompRefrigeratorParent, IRenameable
+	public class RimFridge_Building : Building_Storage, ICompRefrigeratorParent, IRenameable
 	{
 		public Room[] rooms;
 
