@@ -174,6 +174,7 @@ namespace RimFridge
 		{
 			internal Vector2 forcedApplicationOfPatchesScrollPosition;
 			internal List<bool> initialStateOfShouldForceApplicationOfPatches;
+			internal string prisonCellSideAvoidanceStrengthBuffer;
 		}
 
 		internal GUIState guiState = null;
@@ -229,6 +230,9 @@ namespace RimFridge
 			{
 				++Settings.defaultMaximumItemsPerCell;
 			}
+
+			Widgets.Label(new Rect(0, 270, 200, 30), "RimFridge.PrisonCellSideAvoidanceStrength".Translate());
+			Widgets.IntEntry(new Rect(320, 270, 260, 30), ref Settings.prisonCellSideAvoidanceStrength, ref guiState.prisonCellSideAvoidanceStrengthBuffer);
 
 			if (ShouldShowCompatibilitySettings)
 			{
@@ -366,7 +370,7 @@ namespace RimFridge
 
 			RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost = (ushort) (
 				  prisonCellSideAvoidanceStrength < 0
-				? 400
+				? 1600
 				: (
 					  prisonCellSideAvoidanceStrength > 0xFFFF
 					? 0xFFFF
