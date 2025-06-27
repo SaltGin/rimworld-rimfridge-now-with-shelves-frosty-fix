@@ -13,6 +13,8 @@ namespace RimFridge
 		public static Harmony harmony;
 		public static Type appliedHandleTheProprietyOfWallFridgesPatch;
 		public static Type appliedMungeTrueCenterOfItemsInFridgesPatch;
+		public static Type appliedMakeTheStackCountLabelsReadablePatch;
+
 		public SettingsController (ModContentPack content) : base(content)
 		{
 			Settings.PowerFactor = new FloatInput("RimFridge.BasePowerFactor");
@@ -43,9 +45,14 @@ namespace RimFridge
 				typeof(DisplayStackedItemsNicelyInFridges.MungeTrueCenterOfItemsInFridges.MungeTrueCenterPostfix)
 			);
 
-			Patch(typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable));
 			Patch(typeof(AllowFridgesToActAsOrbitalTradeBeacons.LaunchItemsFromFridges));
 			Patch(typeof(AllowFridgesToActAsOrbitalTradeBeacons.WorkaroundCommsConsoleStupidity));
+
+			appliedMakeTheStackCountLabelsReadablePatch = PatchWithFallbacks(
+				typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable.OffsetTheLabelsTranspiler),
+				typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable.OffsetTheLabelsFallback),
+				typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable.OffsetTheLabelsSlowPostfix)
+			);
 
 			Patch(typeof(HacksForCompatibility.ForceTheApplicationOfSomePatches));
 

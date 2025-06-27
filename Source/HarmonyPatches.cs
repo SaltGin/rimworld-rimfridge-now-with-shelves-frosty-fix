@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using UnityEngine;
 using Verse;
@@ -929,39 +930,336 @@ namespace RimFridge
 			}
 		}
 
-		[HarmonyPatch(typeof(GenMapUI), nameof(GenMapUI.LabelDrawPosFor), new[] {typeof(Thing), typeof(float)})]
 		public static class MakeTheStackCountLabelsReadable
 		{
-			[HarmonyPostfix]
-			public static Vector2 OffsetTheLabels (Vector2 originalValue, Thing thing)
+			[HarmonyPatch(typeof(GenMapUI), nameof(GenMapUI.LabelDrawPosFor), new[] {typeof(Thing), typeof(float)})]
+			public static class OffsetTheLabelsTranspiler
 			{
-				if (thing.def.category == ThingCategory.Item && thing.Spawned)
+				[HarmonyTranspiler]
+				static public IEnumerable<CodeInstruction> OffsetTheLabels (
+					IEnumerable<CodeInstruction> theInstructions,
+					ILGenerator il
+				)
 				{
-					var things = thing.Map.thingGrid.ThingsListAtFast(thing.Position);
+					/* Here we're looking for a piece of code that looks like:
+							...
+							Vector3 drawPos = thing.DrawPos;
+							...
+							Vector2 result = (implicit cast from Vector3 to Vector2) ...;
+							...
+							if (thing is Pawn)
+							{
+								...
+							}
+							...
+					   and replacing it with some code that looks like this:
+							...
+							Vector3 drawPos = thing.DrawPos;
+							...
+							Vector2 result = (implicit cast from Vector3 to Vector2) ...;
+							...
+							if (thing is Pawn)
+							{
+								...
+							}
+							else if (FridgeCacheFast.rimFridgeCache[thing.Map].ContainsKey(thing.Position))
+							{
+								result.x += (
+									  ((drawPos.y - altitudeOfItemInFridge) * itemInFridgeSpacingInverse + -1f)
+									* itemInFridgeLabelSpacing
+								);
+								return result;
+							}
+							...
+					*/
 
-					if (things.Count > 2)
+					const int thingArgument = 0;
+
+					using IEnumerator<CodeInstruction> instructions = theInstructions.GetEnumerator();
+
+					MethodInfo getDrawPosOfThing = typeof(Thing).GetProperty(nameof(Thing.DrawPos)).GetMethod;
+					MethodInfo getPositionOfThing = typeof(Thing).GetProperty(nameof(Thing.Position)).GetMethod;
+					MethodInfo getMapOfThing = typeof(Thing).GetProperty(nameof(Thing.Map)).GetMethod;
+					FieldInfo rimFridgeCacheField = typeof(FridgeCacheFast).GetField(nameof(FridgeCacheFast.rimFridgeCache), BindingFlags.NonPublic | BindingFlags.Static);
+					MethodInfo rimFridgeCacheContainsKey = typeof(Dictionary<IntVec3, RimFridge_Building>).GetMethod("ContainsKey");
+					MethodInfo rimFridgeCacheByMapGetItem = typeof(Dictionary<Map, Dictionary<IntVec3, RimFridge_Building>>).GetProperty("Item").GetMethod;
+					FieldInfo vector2x = typeof(Vector2).GetField(nameof(Vector2.x));
+					FieldInfo vector3y = typeof(Vector3).GetField(nameof(Vector3.y));
+					MethodInfo implicitVector3ToVector2 = typeof(Vector2).GetMethod("op_Implicit", new[] {typeof(Vector3)});
+
+					uint patchStage = 0;
+
+					CodeInstruction instruction;
+					int drawPosLocalIndex;
+					int resultLocalIndex;
+				findInitialisationOfDrawPos:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.Calls(getDrawPosOfThing))
 					{
-						var thingID = thing.thingIDNumber;
-						int depthInStack = -1;
-						bool haveFridgeInCell = false;
-
-						foreach (var eachThing in things)
-						{
-							haveFridgeInCell = haveFridgeInCell || eachThing is RimFridge_Building;
-							depthInStack += (
-								eachThing.thingIDNumber < thingID
-								&& eachThing.def.category == ThingCategory.Item
-							) ? 1 : 0;
-						}
-
-						if (haveFridgeInCell)
-						{
-							originalValue.x += (float) depthInStack * 17.0f;
-						}
+						goto findInitialisationOfDrawPos;
 					}
+
+					instructions.MoveNext();
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.StoresLocal(out drawPosLocalIndex))
+					{
+						goto findInitialisationOfDrawPos;
+					}
+
+					++patchStage;
+				findInitialisationOfResult:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.Calls(implicitVector3ToVector2))
+					{
+						goto findInitialisationOfResult;
+					}
+
+					instructions.MoveNext();
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.StoresLocal(out resultLocalIndex))
+					{
+						goto findInitialisationOfResult;
+					}
+
+					++patchStage;
+				findIsPawnCondition:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.IsLdarg(thingArgument))
+					{
+						goto findIsPawnCondition;
+					}
+
+					instructions.MoveNext();
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (instruction.opcode != OpCodes.Isinst || (Type) instruction.operand != typeof(Pawn))
+					{
+						goto findIsPawnCondition;
+					}
+
+					instructions.MoveNext();
+					instruction = instructions.Current;
+
+					if ((instruction.opcode != OpCodes.Brfalse_S) & (instruction.opcode != OpCodes.Brfalse))
+					{
+						yield return instruction;
+						goto findIsPawnCondition;
+					}
+
+					Label oldIsNotPawnTargetLabel = (Label) instruction.operand;
+					Label newIsNotPawnTargetLabel = il.DefineLabel();
+
+					instruction.operand = newIsNotPawnTargetLabel;
+
+					yield return instruction;
+
+					++patchStage;
+				findOldIsNotPawnTarget:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					if (!instruction.labels.Contains(oldIsNotPawnTargetLabel))
+					{
+						yield return instruction;
+						goto findOldIsNotPawnTarget;
+					}
+
+					yield return new CodeInstruction(OpCodes.Ldsfld, rimFridgeCacheField).LabelWith(newIsNotPawnTargetLabel);
+					yield return new CodeInstruction(OpCodes.Ldarg_0);
+					yield return new CodeInstruction(OpCodes.Call, getMapOfThing);
+					yield return new CodeInstruction(OpCodes.Call, rimFridgeCacheByMapGetItem);
+					yield return new CodeInstruction(OpCodes.Ldarg_0);
+					yield return new CodeInstruction(OpCodes.Call, getPositionOfThing);
+					yield return new CodeInstruction(OpCodes.Call, rimFridgeCacheContainsKey);
+
+					yield return new CodeInstruction(OpCodes.Brfalse_S, oldIsNotPawnTargetLabel);
+
+					yield return CodeInstruction.LoadLocal(resultLocalIndex, true);
+					yield return new CodeInstruction(OpCodes.Ldflda, vector2x);
+					yield return new CodeInstruction(OpCodes.Dup);
+					yield return new CodeInstruction(OpCodes.Ldind_R4);
+					yield return CodeInstruction.LoadLocal(drawPosLocalIndex, true);
+					yield return new CodeInstruction(OpCodes.Ldfld, vector3y);
+					yield return new CodeInstruction(OpCodes.Ldc_R4, altitudeOfItemInFridge);
+					yield return new CodeInstruction(OpCodes.Sub);
+					yield return new CodeInstruction(OpCodes.Ldc_R4, itemInFridgeSpacingInverse);
+					yield return new CodeInstruction(OpCodes.Mul);
+					yield return new CodeInstruction(OpCodes.Ldc_R4, -1f);
+					yield return new CodeInstruction(OpCodes.Add);
+					yield return new CodeInstruction(OpCodes.Ldc_R4, itemInFridgeLabelSpacing);
+					yield return new CodeInstruction(OpCodes.Mul);
+					yield return new CodeInstruction(OpCodes.Add);
+					yield return new CodeInstruction(OpCodes.Stind_R4);
+
+					yield return CodeInstruction.LoadLocal(resultLocalIndex);
+					yield return new CodeInstruction(OpCodes.Ret);
+
+					yield return instruction;
+
+					++patchStage;
+				yieldRestOfCode:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					goto yieldRestOfCode;
+				noMoreInstructions:
+					if (patchStage == 4)
+					{
+						yield break;
+					}
+
+					throw new TranspilerFallbackException("The transpiler patch for `GenMapUI.LabelDrawPosFor` failed to apply, so we're falling back to a very-slightly-slower transpiler and postfix patch.");
+				}
+			}
+
+			[HarmonyPatch(typeof(GenMapUI), nameof(GenMapUI.LabelDrawPosFor), new[] {typeof(Thing), typeof(float)})]
+			public static class OffsetTheLabelsFallback
+			{
+				#pragma warning disable 0649
+				[ThreadStatic]
+				internal static float drawPosYOfThing;
+				#pragma warning restore 0649
+
+				[HarmonyTranspiler]
+				static public IEnumerable<CodeInstruction> CacheDrawPosY (
+					IEnumerable<CodeInstruction> theInstructions,
+					ILGenerator il
+				)
+				{
+					/* Here we're looking for a piece of code that looks  like:
+							...
+							Vector3 drawPos = thing.DrawPos;
+							...
+					   and replacing it with some code that looks like this:
+							...
+							Vector3 drawPos = thing.DrawPos;
+							drawPosYOfThing = drawPos.y;
+							...
+					*/
+
+					using IEnumerator<CodeInstruction> instructions = theInstructions.GetEnumerator();
+
+					MethodInfo getDrawPosOfThing = typeof(Thing).GetProperty(nameof(Thing.DrawPos)).GetMethod;
+					FieldInfo vector3y = typeof(Vector3).GetField(nameof(Vector3.y));
+					FieldInfo drawPosYOfThingField = typeof(OffsetTheLabelsFallback).GetField("drawPosYOfThing", BindingFlags.NonPublic | BindingFlags.Static);
+
+					uint patchStage = 0;
+
+					CodeInstruction instruction;
+					int drawPosLocalIndex;
+				findInitialisationOfDrawPos:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.Calls(getDrawPosOfThing))
+					{
+						goto findInitialisationOfDrawPos;
+					}
+
+					instructions.MoveNext();
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.StoresLocal(out drawPosLocalIndex))
+					{
+						goto findInitialisationOfDrawPos;
+					}
+
+					yield return CodeInstruction.LoadLocal(drawPosLocalIndex, true);
+					yield return new CodeInstruction(OpCodes.Ldfld, vector3y);
+					yield return new CodeInstruction(OpCodes.Stsfld, drawPosYOfThingField);
+
+					++patchStage;
+				yieldRestOfCode:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					goto yieldRestOfCode;
+				noMoreInstructions:
+					if (patchStage == 1)
+					{
+						yield break;
+					}
+
+					throw new TranspilerFallbackException("The fallback transpiler patch for `GenMapUI.LabelDrawPosFor` failed to apply, so we're falling back to a slower postfix patch.");
 				}
 
-				return originalValue;
+				[HarmonyPostfix]
+				public static Vector2 OffsetTheLabels (Vector2 originalValue, Thing thing)
+				{
+					if (!(thing is Pawn) && FridgeCacheFast.rimFridgeCache[thing.Map].ContainsKey(thing.Position))
+					{
+						originalValue.x += (
+							  ((drawPosYOfThing - altitudeOfItemInFridge) * itemInFridgeSpacingInverse + -1f)
+							* itemInFridgeLabelSpacing
+						);
+					}
+
+					return originalValue;
+				}
+			}
+
+			[HarmonyPatch(typeof(GenMapUI), nameof(GenMapUI.LabelDrawPosFor), new[] {typeof(Thing), typeof(float)})]
+			public static class OffsetTheLabelsSlowPostfix
+			{
+				[HarmonyPostfix]
+				public static Vector2 OffsetTheLabels (Vector2 originalValue, Thing thing)
+				{
+					if (thing.def.category == ThingCategory.Item && thing.Spawned)
+					{
+						var things = thing.Map.thingGrid.ThingsListAtFast(thing.Position);
+
+						if (things.Count > 2)
+						{
+							var thingID = thing.thingIDNumber;
+							int depthInStack = -1;
+							bool haveFridgeInCell = false;
+
+							foreach (var eachThing in things)
+							{
+								haveFridgeInCell = haveFridgeInCell || eachThing is RimFridge_Building;
+								depthInStack += (
+									eachThing.thingIDNumber < thingID
+									&& eachThing.def.category == ThingCategory.Item
+								) ? 1 : 0;
+							}
+
+							if (haveFridgeInCell)
+							{
+								originalValue.x += (float) depthInStack * itemInFridgeLabelSpacing;
+							}
+						}
+					}
+
+					return originalValue;
+				}
 			}
 		}
 	}
