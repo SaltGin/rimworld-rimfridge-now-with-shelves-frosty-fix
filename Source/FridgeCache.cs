@@ -34,6 +34,12 @@ namespace RimFridge
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public IEnumerable<CompRefrigerator> GetFridgeComps ()
+		{
+			return this.FridgeGrid.Values;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FridgeCache GetFridgeCache (Map map)
 		{
 			return map.GetComponent<FridgeCache>();
