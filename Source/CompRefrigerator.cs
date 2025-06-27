@@ -194,7 +194,7 @@ namespace RimFridge
 			{
 				foreach (ThingDef td in DefDatabase<ThingDef>.AllDefs)
 				{
-					if ((td.HasComp(typeof(CompRottable)) || td.HasComp(typeof(CompTemperatureRuinable))) && !fixedStorageSettings.filter.Allows(td))
+					if ((td.HasComp<CompRottable>() || td.HasComp<CompTemperatureRuinable>()) && !fixedStorageSettings.filter.Allows(td))
 					{
 						fixedStorageSettings.filter.SetAllow(td, true);
 					}
