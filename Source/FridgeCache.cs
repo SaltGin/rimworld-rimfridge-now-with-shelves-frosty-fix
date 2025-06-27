@@ -44,7 +44,7 @@ namespace RimFridge
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public IEnumerable<CompRefrigerator> GetFridgeComps ()
 		{
-			return this.FridgeGrid.Values;
+			return this.compList;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -133,7 +133,7 @@ namespace RimFridge
 
 		public void ReactToChangeOfRegionsAndRooms ()
 		{
-			foreach (RimFridge_Building rimFridge in this.rimFridgeCache.Values)
+			foreach (RimFridge_Building rimFridge in this.rimFridgeList)
 			{
 				rimFridge.ReactToChangeOfRegionsAndRooms();
 			}
@@ -179,7 +179,7 @@ namespace RimFridge
 	{
 		internal static void ReactToChangeOfPrisonCellStatusForRoom (Room room, bool isPrisonCell)
 		{
-			foreach (RimFridge_DoubleSidedWallBuilding doubleSided in FridgeCacheFast.doubleSidedCache[room.Map].Values)
+			foreach (RimFridge_DoubleSidedWallBuilding doubleSided in FridgeCacheFast.doubleSidedList[room.Map])
 			{
 				doubleSided.ReactToChangeOfPrisonCellStatusForRoom();
 			}

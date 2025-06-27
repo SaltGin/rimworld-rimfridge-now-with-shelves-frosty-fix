@@ -388,9 +388,9 @@ namespace RimFridge
 				{
 					foreach (Map map in Find.Maps)
 					{
-						if (FridgeCacheFast.doubleSidedCache.TryGetValue(map, out Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding> cache))
+						if (FridgeCacheFast.doubleSidedList.TryGetValue(map, out List<RimFridge_DoubleSidedWallBuilding> list))
 						{
-							foreach (RimFridge_DoubleSidedWallBuilding doubleSided in cache.Values)
+							foreach (RimFridge_DoubleSidedWallBuilding doubleSided in list)
 							{
 								doubleSided.RectifyPrisonCellSideToAvoidStatus();
 							}

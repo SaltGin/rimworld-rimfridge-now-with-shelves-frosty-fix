@@ -485,7 +485,7 @@ namespace RimFridge
 
 				ThingGrid thingGrid = map.thingGrid;
 
-				foreach (RimFridge_Building fridge in FridgeCacheFast.rimFridgeCache[map].Values)
+				foreach (RimFridge_Building fridge in FridgeCacheFast.rimFridgeList[map])
 				{
 					StorageSettings storageSettings = fridge.settings;
 
@@ -612,7 +612,7 @@ namespace RimFridge
 
 				Map map = passingShip.Map;
 
-				foreach (RimFridge_Building fridge in FridgeCacheFast.rimFridgeCache[map].Values)
+				foreach (RimFridge_Building fridge in FridgeCacheFast.rimFridgeList[map])
 				{
 					RimWorld.CompPowerTrader powerComp = fridge.GetComp<RimWorld.CompPowerTrader>();
 
