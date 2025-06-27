@@ -148,17 +148,27 @@ namespace RimFridge
 				}
 			}
 
-			//These call the internal functions of GenTemperature.TryGetTemperatureForCell()
+			IntVec3 position = new IntVec3{};
+			Map map = null;
+			ICompRefrigeratorParent fastParent = null;
+			float roomTemperature;
 
-			IntVec3 position = parent.Position;
-			Map map = parent.Map;
-			float roomTemperature = 21f;  // The game uses 21 as it's general default as well.
-
-			// This bit will work for normal furniture RimFridges
-			if  (!GenTemperature.TryGetDirectAirTemperatureForCell(position, map, out roomTemperature))
+			if (parent is ICompRefrigeratorParent f)
 			{
-				// This is if it's a wall-mount RimFridge and not part of a "room"
-				GenTemperature.TryGetAirTemperatureAroundThing(parent, out roomTemperature);
+				fastParent = f;
+				roomTemperature = fastParent.GetTemperatureOfSurroundings(this);
+			}
+			else
+			{
+				position = parent.Position;
+				map = parent.Map;
+
+				// This bit will work for normal furniture RimFridges
+				if  (!GenTemperature.TryGetDirectAirTemperatureForCell(position, map, out roomTemperature))
+				{
+					// This is if it's a wall-mount RimFridge and not part of a "room"
+					GenTemperature.TryGetAirTemperatureAroundThing(parent, out roomTemperature);
+				}
 			}
 
 			float changetemperature = (roomTemperature - currentTemp) * 0.01f;
@@ -183,8 +193,18 @@ namespace RimFridge
 			// Like all refrigerators, the RimFridge is insulated.  It won't instantly drop to room-temp from loss of power and things inside
 			// should be good through brief power interruptions.
 			currentTemp += changetemperature;
-			IntVec3 pos = position + IntVec3.North.RotatedBy(parent.Rotation);
-			GenTemperature.PushHeat(pos, map, changeEnergy * 1.25f);
+
+			changeEnergy *= 1.25f;
+
+			if (fastParent != null)
+			{
+				fastParent.PushTransferredAndGeneratedHeat(changeEnergy, this);
+			}
+			else
+			{
+				IntVec3 pos = position + IntVec3.North.RotatedBy(parent.Rotation);
+				GenTemperature.PushHeat(pos, map, changeEnergy);
+			}
 
 			if (powerTrader != null)
 			{
