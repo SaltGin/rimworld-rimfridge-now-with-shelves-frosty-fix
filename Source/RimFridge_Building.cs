@@ -22,8 +22,20 @@ namespace RimFridge
 		internal static class Flags
 		{
 			internal const uint itemsRequirePathEndModeOfTouch = 1 << 0;
+			internal const uint forbidsUsageByAnimals = 1 << 1;
+
+			internal const uint persistedFlagsMask = forbidsUsageByAnimals;
 		}
 
+		public bool ForbidsUsageByAnimals
+		{
+			get => (this.packedState & Flags.forbidsUsageByAnimals) != 0;
+			set
+			{
+				this.packedState &= ~Flags.forbidsUsageByAnimals;
+				this.packedState |= value ? Flags.forbidsUsageByAnimals : 0;
+			}
+		}
 
 		public override int MaxItemsInCell
 		{
@@ -91,6 +103,51 @@ namespace RimFridge
 					icon = TexButton.Plus
 				};
 			}
+
+			if (this.ForbidsUsageByAnimals)
+			{
+				yield return new Command_Action
+				{
+					action = () =>
+					{
+						SoundStarter.PlayOneShotOnCamera(SoundDefOf.TinyBell);
+						this.PermitUsageByAnimals();
+					},
+					defaultLabel = "RimFridge.PermitUsageByAnimals".Translate(),
+					defaultDesc = "RimFridge.PermitUsageByAnimalsDescription".Translate(),
+					icon = TexButton.Ingest
+				};
+			}
+			else
+			{
+				yield return new Command_Action
+				{
+					action = () =>
+					{
+						SoundStarter.PlayOneShotOnCamera(SoundDefOf.Crunch);
+						this.ForbidUsageByAnimals();
+					},
+					defaultLabel = "RimFridge.ForbidUsageByAnimals".Translate(),
+					defaultDesc = "RimFridge.ForbidUsageByAnimalsDescription".Translate(),
+					icon = TexButton.LockNorthUp
+				};
+			}
+		}
+
+		public void TogglePermissionForUsageByAnimals ()
+		{
+			this.ForbidsUsageByAnimals = !this.ForbidsUsageByAnimals;
+		}
+
+		public void ForbidUsageByAnimals ()
+		{
+			this.ForbidsUsageByAnimals = true;
+		}
+
+		public void PermitUsageByAnimals ()
+		{
+			this.ForbidsUsageByAnimals = false;
+		}
 
 		public void LowerMaxItemsInCell ()
 		{
@@ -202,6 +259,17 @@ namespace RimFridge
 		{
 			base.ExposeData();
 
+			if (Scribe.mode == LoadSaveMode.Saving)
+			{
+				uint packedState = this.packedState & Flags.persistedFlagsMask;
+				Scribe_Values.Look(ref packedState, "packedState");
+			}
+			else if (Scribe.mode == LoadSaveMode.LoadingVars)
+			{
+				uint packedState = 0;
+				Scribe_Values.Look(ref packedState, "packedState");
+				this.packedState |= packedState & Flags.persistedFlagsMask;
+			}
 
 			Scribe_Values.Look(ref this.maximumItemsPerCell, "maxItemsPerCell", 0x7FFFFFFF);
 
