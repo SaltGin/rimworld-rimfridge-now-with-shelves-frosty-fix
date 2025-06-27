@@ -25,6 +25,7 @@
 		<passability>PassThroughOnly</passability>
 		<fillPercent>0.4</fillPercent>
 		<castEdgeShadows>true</castEdgeShadows>
+		<defaultPlacingRot>South</defaultPlacingRot>
 		<thingCategories>
 			<li>BuildingsFurniture</li>
 		</thingCategories>
