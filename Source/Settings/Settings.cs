@@ -210,6 +210,7 @@ namespace RimFridge
 			Widgets.Label(new Rect(20, 100, 400, 30), "RimFridge.PowerFactorExplanation".Translate());
 			Widgets.CheckboxLabeled(new Rect(0, 140, 200, 30), "RimFridge.ActAsTradeBeacon".Translate(), ref Settings.ActAsBeacon);
 			Widgets.CheckboxLabeled(new Rect(0, 180, 200, 30), "RimFridge.EnableFrostyBeverages".Translate(), ref Settings.enableFrostyBeverages);
+			Widgets.CheckboxLabeled(new Rect(0, 210, 200, 30), "RimFridge.UglyStackAppearance".Translate(), ref Settings.uglyStackAppearance);
 
 			if (ShouldShowCompatibilitySettings)
 			{
