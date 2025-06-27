@@ -5,11 +5,17 @@
 		<designatorDropdown>WallFridgeDesignatorDropdownDef</designatorDropdown>
 		<passability>Impassable</passability>
 		<blockWind>true</blockWind>
+		<staticSunShadowHeight>1.0</staticSunShadowHeight>
 		<fillPercent>1</fillPercent>
 		<coversFloor>true</coversFloor>
 		<blockLight>true</blockLight>
+		<drawStyleCategory>Walls</drawStyleCategory>
 		<canOverlapZones>false</canOverlapZones>
+		<holdsRoof>true</holdsRoof>
+		<terrainAffordanceNeeded>Medium</terrainAffordanceNeeded>
 		<building>
+			<isWall>true</isWall>
+			<ai_chillDestination>true</ai_chillDestination>
 			<canPlaceOverWall>true</canPlaceOverWall>
 		</building>
 	</ThingDef>
