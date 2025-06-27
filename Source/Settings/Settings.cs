@@ -212,6 +212,24 @@ namespace RimFridge
 			Widgets.CheckboxLabeled(new Rect(0, 180, 200, 30), "RimFridge.EnableFrostyBeverages".Translate(), ref Settings.enableFrostyBeverages);
 			Widgets.CheckboxLabeled(new Rect(0, 210, 200, 30), "RimFridge.UglyStackAppearance".Translate(), ref Settings.uglyStackAppearance);
 
+			Widgets.Label(new Rect(0, 240, 200, 30), "RimFridge.DefaultMaximumItemsPerCellSetting".Translate(Settings.defaultMaximumItemsPerCell));
+
+			if (
+				   Settings.defaultMaximumItemsPerCell > 0
+				&& Widgets.ButtonText(new Rect(320, 240, 30, 20), "-")
+			)
+			{
+				--Settings.defaultMaximumItemsPerCell;
+			}
+
+			if (
+				   Settings.defaultMaximumItemsPerCell < maximumDefaultMaximumItemsPerCell
+				&& Widgets.ButtonText(new Rect(360, 240, 30, 20), "+")
+			)
+			{
+				++Settings.defaultMaximumItemsPerCell;
+			}
+
 			if (ShouldShowCompatibilitySettings)
 			{
 				Widgets.DrawMenuSection(new Rect(0, 210, 800, 370));
