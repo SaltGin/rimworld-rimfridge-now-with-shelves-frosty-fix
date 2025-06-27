@@ -264,6 +264,8 @@ namespace RimFridge
 			}
 
 			guiState = null;
+
+			Settings.Reify();
 		}
 
 		protected static bool ShouldShowCompatibilitySettings
@@ -278,6 +280,7 @@ namespace RimFridge
 		public static bool ActAsBeacon = false;
 		public static bool enableFrostyBeverages = true;
 		public static int defaultMaximumItemsPerCell;
+		public static int prisonCellSideAvoidanceStrength;
 		/* Making this a List causes access to be O(n), but we want to maintain
 			the order the patches were loaded in. */
 		public static List<ApplicationOfPatch> forcedApplicationOfPatches = new();
@@ -301,11 +304,45 @@ namespace RimFridge
 			Scribe_Values.Look(ref ActAsBeacon, "RimFridge.ActAsBeacon", false, false);
 			Scribe_Values.Look(ref defaultMaximumItemsPerCell, "RimFridge.DefaultMaximumItemsPerCell", 3, false);
 			Scribe_Values.Look(ref enableFrostyBeverages, "RimFridge.EnableFrostyBeverages", true, false);
+			Scribe_Values.Look(ref prisonCellSideAvoidanceStrength, "RimFridge.PrisonCellSideAvoidanceStrength", -1, false);
 			Scribe_Collections.Look(ref forcedApplicationOfPatches, "RimFridge.ForcedApplicationOfPatches", LookMode.Deep);
 
 			if (Scribe.mode == LoadSaveMode.PostLoadInit)
 			{
 				forcedApplicationOfPatches ??= new();
+				Reify();
+			}
+		}
+
+		public static void Reify ()
+		{
+			ushort oldPrisonCellSideAvoidancePathFindCost = RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost;
+
+			RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost = (ushort) (
+				  prisonCellSideAvoidanceStrength < 0
+				? 400
+				: (
+					  prisonCellSideAvoidanceStrength > 0xFFFF
+					? 0xFFFF
+					: prisonCellSideAvoidanceStrength
+				)
+			);
+
+			if (Current.Game != null)
+			{
+				if (oldPrisonCellSideAvoidancePathFindCost != RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost)
+				{
+					foreach (Map map in Find.Maps)
+					{
+						if (FridgeCacheFast.doubleSidedCache.TryGetValue(map, out Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding> cache))
+						{
+							foreach (RimFridge_DoubleSidedWallBuilding doubleSided in cache.Values)
+							{
+								doubleSided.RectifyPrisonCellSideToAvoidStatus();
+							}
+						}
+					}
+				}
 			}
 		}
 	}

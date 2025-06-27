@@ -425,10 +425,62 @@ namespace RimFridge
 		}
 	}
 
-	public class RimFridge_DoubleSidedWallBuilding : RimFridge_WallBuilding
+	public class RimFridge_DoubleSidedWallBuilding : RimFridge_WallBuilding, IPathFindCostProvider
 	{
+		public static ushort prisonCellSideAvoidancePathFindCost;
+
+		internal CellRect pathFindCostCellRect;
+
+		/* If this double-sided wall-fridge is between
+		   a room that is a prison-cell and a room that is not a prison-cell
+		   this will be a reference to the prison-cell, otherwise it will be null.
+		   If prisonCellSideAvoidancePathFindCost is zero this will be null
+		   as it does not matter. */
+		internal Room prisonCellSideToAvoid;
+
 		public RimFridge_DoubleSidedWallBuilding () : base()
 		{}
+
+		public ushort PathFindCostFor (Pawn pawn)
+		{
+			/* This is the fast-path. */
+			if (this.prisonCellSideToAvoid == null)
+			{
+				return 0;
+			}
+
+			/* This is the very-slightly-less-fast-path. */
+			if (pawn.jobs?.curDriver == null)
+			{
+				return 0;
+			}
+
+			if (
+				/* If they have no faction they don't care. */
+				   pawn.Faction is not {} faction
+				/* If they don't belong to the player's faction they don't care. */
+				|| !faction.IsPlayer
+				/* If they're not free they don't care. */
+				|| pawn.HostFaction != null
+				/* If they're a slave they don't care. */
+				|| pawn.IsSlave
+				/* If they're already in the prison-cell there's no call for discouraging them from entering it. */
+				|| this.Map.regionGrid.GetValidRegionAt(pawn.Position).Room == this.prisonCellSideToAvoid
+			)
+			{
+	  			return 0;
+			}
+
+			return prisonCellSideAvoidancePathFindCost;
+		}
+
+		/* This is for IPathFindCostProvider, which we use to discourage pawns
+		   from using the socially-improper side if desired,
+		   hence why the occupied-rect extends past the fridge. */
+		public CellRect GetOccupiedRect ()
+		{
+			return this.pathFindCostCellRect;
+		}
 
 		public override void ReactToChangeOfRegionsAndRooms ()
 		{
@@ -525,6 +577,11 @@ namespace RimFridge
 
 		public void RectifyPrisonCellSideToAvoidStatus ()
 		{
+			if (prisonCellSideAvoidancePathFindCost == 0)
+			{
+				goto noPrisonCellSideToAvoid;
+			}
+
 			Room[] adjacentRooms = this.rooms;
 			int roomCount = adjacentRooms.Length;
 			Room prisonCell = null;
@@ -610,7 +667,7 @@ namespace RimFridge
 
 				return;
 			}
-
+		noPrisonCellSideToAvoid:
 			this.prisonCellSideToAvoid = null;
 			this.pathFindCostCellRect.minX = 0;
 			this.pathFindCostCellRect.minZ = 0;
