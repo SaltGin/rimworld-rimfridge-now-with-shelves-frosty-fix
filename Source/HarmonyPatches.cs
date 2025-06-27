@@ -145,49 +145,55 @@ namespace RimFridge
 		}
 	}
 
-	[HarmonyPatch(typeof(TradeShip), "ColonyThingsWillingToBuy")]
-	static class Patch_PassingShip_TryOpenComms
+
+	public static class AllowFridgesToActAsOrbitalTradeBeacons
 	{
-		// Before an orbital trade
-		static void Postfix (ref IEnumerable<Thing> __result, Pawn playerNegotiator)
+		[HarmonyPatch(
+			typeof(TradeUtility),
+			nameof(TradeUtility.AllLaunchableThingsForTrade),
+			new[] {typeof(Map), typeof(ITrader)}
+		)]
+		public static class LaunchItemsFromFridges
 		{
-			if (!Settings.ActAsBeacon)
-				return;
-
-			List<Thing> things = null;
-
-			if (playerNegotiator != null && playerNegotiator.Map != null)
+			[HarmonyPostfix]
+			public static IEnumerable<Thing> MaybeLaunchItemsFromFridges (
+				IEnumerable<Thing> originalThings,
+				Map map,
+				ITrader trader
+			)
 			{
-				foreach (Thing thing in playerNegotiator.Map.listerBuildings.allBuildingsColonist)
+				foreach (Thing thing in originalThings)
 				{
-					if (thing is RimFridge_Building storage)//IsRimFridge(thing?.def))
-					{
-						//var storage = thing as Building_Storage;
-						foreach (IntVec3 cell in storage.AllSlotCells())
-						{
-							foreach (Thing refrigeratedItem in playerNegotiator.Map.thingGrid.ThingsAt(cell))
-							{
-								if (storage.settings.AllowedToAccept(refrigeratedItem))
-								{
-									if (things == null)
-									{
-										if (__result?.Count() == 0)
-											things = new List<Thing>();
-										else
-											things = new List<Thing>(__result);
-									}
+					yield return thing;
+				}
 
-									things.Add(refrigeratedItem);
-									break;
-								}
+				if (!Settings.ActAsBeacon)
+				{
+					yield break;
+				}
+
+				ThingGrid thingGrid = map.thingGrid;
+
+				foreach (RimFridge_Building fridge in FridgeCacheFast.rimFridgeCache[map].Values)
+				{
+					StorageSettings storageSettings = fridge.settings;
+
+					foreach (IntVec3 cell in fridge.AllSlotCells())
+					{
+						foreach (Thing refrigeratedItem in thingGrid.ThingsListAtFast(cell))
+						{
+							if (
+								   refrigeratedItem.def.category == Verse.ThingCategory.Item
+								&& TradeUtility.PlayerSellableNow(refrigeratedItem, trader)
+								&& storageSettings.AllowedToAccept(refrigeratedItem)
+							)
+							{
+								yield return refrigeratedItem;
 							}
 						}
 					}
 				}
 			}
-
-			if (things != null)
-				__result = things;
 		}
 	}
 

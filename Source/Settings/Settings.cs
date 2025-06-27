@@ -29,10 +29,12 @@ namespace RimFridge
 			Patch(typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.SetPathEndModeForReachabilityCanReachSuchThatItemsInFridgeMayBeReached));
 			Patch(typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.SetPathEndModeForThingFromRegionListerReachableSuchThatItemsInWallFridgeMayBeReached));
 			Patch(typeof(Patch_Thing_AmbientTemperature));
-			Patch(typeof(Patch_PassingShip_TryOpenComms));
+
 			Patch(typeof(EnsureThatPrisonersGetFoodFromFridgesInPrisons));
 			Patch(typeof(DisplayStackedItemsNicelyInFridges.MungeTrueCenterOfItemsInFridges));
 			Patch(typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable));
+			Patch(typeof(AllowFridgesToActAsOrbitalTradeBeacons.LaunchItemsFromFridges));
+
 			Patch(typeof(HacksForCompatibility.ForceTheApplicationOfSomePatches));
 
 			base.GetSettings<Settings>();
