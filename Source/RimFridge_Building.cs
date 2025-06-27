@@ -67,7 +67,7 @@ namespace RimFridge
 
 			yield return new Command_Action
 			{
-				action = () => Find.WindowStack.Add(new Dialog_RenameFridge(this)),
+				action = this.ShowRenameFridgeDialog,
 				defaultLabel = "Rename".Translate(),
 				defaultDesc = "RimFridge.RenameTheRefrigerator".Translate(),
 				hotKey = KeyBindingDefOf.Misc1,
@@ -132,6 +132,11 @@ namespace RimFridge
 					icon = TexButton.LockNorthUp
 				};
 			}
+		}
+
+		public void ShowRenameFridgeDialog ()
+		{
+			Find.WindowStack.Add(new Dialog_RenameFridge(this));
 		}
 
 		public void TogglePermissionForUsageByAnimals ()
