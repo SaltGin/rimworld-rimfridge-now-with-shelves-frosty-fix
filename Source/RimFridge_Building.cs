@@ -71,7 +71,7 @@ namespace RimFridge
 				defaultLabel = "Rename".Translate(),
 				defaultDesc = "RimFridge.RenameTheRefrigerator".Translate(),
 				hotKey = KeyBindingDefOf.Misc1,
-				icon = ContentFinder<Texture2D>.Get("UI/Buttons/Rename", true)
+				icon = TexButton.Rename
 			};
 
 			if (this.maximumItemsPerCell > 0)
