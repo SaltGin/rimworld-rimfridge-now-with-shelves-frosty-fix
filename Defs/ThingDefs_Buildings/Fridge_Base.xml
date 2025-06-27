@@ -50,6 +50,7 @@
 						<li>PlantMatter</li>
 						<li>PlantFoodRaw</li>
 						<li>BodyParts</li>
+						<li>Manufactured</li>
 					</categories>
 					<thingDefs MayRequire="Ludeon.RimWorld.Biotech">
 						<li MayRequire="Ludeon.RimWorld.Biotech">Wastepack</li>
