@@ -48,6 +48,7 @@ namespace RimFridge
 			Patch(typeof(AllowFridgesToActAsOrbitalTradeBeacons.LaunchItemsFromFridges));
 			Patch(typeof(AllowFridgesToActAsOrbitalTradeBeacons.WorkaroundCommsConsoleStupidity));
 
+			Patch(typeof(HandleDeathPallsProperlyForCorpsesInWallFridges.TreatWallFridgesAsIndoorsIfAppropriate));
 			appliedMakeTheStackCountLabelsReadablePatch = PatchWithFallbacks(
 				typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable.OffsetTheLabelsTranspiler),
 				typeof(DisplayStackedItemsNicelyInFridges.MakeTheStackCountLabelsReadable.OffsetTheLabelsFallback),

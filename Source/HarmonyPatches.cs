@@ -1294,6 +1294,52 @@ namespace RimFridge
 		}
 	}
 
+
+	public static class HandleDeathPallsProperlyForCorpsesInWallFridges
+	{
+		[HarmonyPatch(
+			typeof(MutantUtility),
+			nameof(MutantUtility.CanResurrectAsShambler),
+			new[] {typeof(Corpse), typeof(bool)}
+		)]
+		public static class TreatWallFridgesAsIndoorsIfAppropriate
+		{
+			[HarmonyPostfix]
+			public static bool TreatWallFridgesAsIndoors (
+				bool canResurrectAsShambler,
+				Corpse corpse,
+				bool ignoreIndoors
+			)
+			{
+				if (!canResurrectAsShambler | ignoreIndoors)
+				{
+					return canResurrectAsShambler;
+				}
+
+				if (!FridgeCacheFast.wallFridgeCache[corpse.MapHeld].TryGetValue(corpse.PositionHeld, out RimFridge_WallBuilding wallFridge))
+				{
+					return true;
+				}
+
+				Room[] adjacentRooms = wallFridge.rooms;
+				int roomCount = adjacentRooms.Length;
+
+				for (int index = 0; index < roomCount; ++index)
+				{
+					Room room = adjacentRooms[index];
+
+					if (!room.ProperRoom && !room.IsDoorway)
+					{
+						return true;
+					}
+				}
+
+				return false;
+			}
+		}
+	}
+
+
 	public static class HacksForCompatibility
 	{
 		[HarmonyPatch(
