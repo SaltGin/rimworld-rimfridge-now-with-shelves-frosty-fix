@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 using System.Collections.Generic;
 
 namespace RimFridge
@@ -55,7 +56,11 @@ namespace RimFridge
 			};
 			yield return new Command_Action
 			{
-				action = delegate { desiredTemp = defaultDesiredTemperature; },
+				action = () =>
+				{
+					SoundStarter.PlayOneShotOnCamera(SoundDefOf.Tick_Tiny);
+					desiredTemp = defaultDesiredTemperature;
+				},
 				defaultLabel = "CommandResetTemp".Translate(),
 				defaultDesc = "CommandResetTempDesc".Translate(),
 				//hotKey = KeyBindingDefOf.Misc1,
@@ -84,6 +89,7 @@ namespace RimFridge
 
 		private void InterfaceChangeTargetTemperature (float offset)
 		{
+			SoundStarter.PlayOneShotOnCamera(SoundDefOf.DragSlider);
 			desiredTemp += offset;
 			desiredTemp = Mathf.Clamp(desiredTemp, -270f, 270f);
 		}
