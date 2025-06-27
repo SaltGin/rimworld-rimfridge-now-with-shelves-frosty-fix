@@ -269,9 +269,9 @@ namespace RimFridge
 
 		public override void PostDeSpawn (Map map, DestroyMode destroyMode)
 		{
-			base.PostDeSpawn(map, destroyMode);
-
 			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.compCache[map], GenAdj.OccupiedRect(this.parent));
+
+			base.PostDeSpawn(map, destroyMode);
 		}
 
 		public override void PostExposeData ()

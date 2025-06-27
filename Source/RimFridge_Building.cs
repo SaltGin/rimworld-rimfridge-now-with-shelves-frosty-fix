@@ -314,11 +314,11 @@ namespace RimFridge
 
 		public override void DeSpawn (DestroyMode mode)
 		{
-			base.DeSpawn(mode);
+			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.rimFridgeCache[this.Map], GenAdj.OccupiedRect(this));
 
 			this.rooms = null;
 
-			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.rimFridgeCache[this.Map], GenAdj.OccupiedRect(this));
+			base.DeSpawn(mode);
 		}
 
 		public virtual float GetTemperatureOfSurroundings (CompRefrigerator comp)
@@ -433,9 +433,9 @@ namespace RimFridge
 
 		public override void DeSpawn (DestroyMode mode)
 		{
-			base.DeSpawn(mode);
-
 			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.wallFridgeCache[this.Map], GenAdj.OccupiedRect(this));
+
+			base.DeSpawn(mode);
 		}
 
 		public override float GetTemperatureOfSurroundings (CompRefrigerator comp)
@@ -574,9 +574,9 @@ namespace RimFridge
 
 		public override void DeSpawn (DestroyMode mode)
 		{
-			base.DeSpawn(mode);
-
 			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.doubleSidedCache[this.Map], GenAdj.OccupiedRect(this));
+
+			base.DeSpawn(mode);
 		}
 
 		public override Region[] GatherAdjacentRegions ()
