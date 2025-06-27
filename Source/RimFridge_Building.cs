@@ -8,7 +8,7 @@ using Verse.Sound;
 
 namespace RimFridge
 {
-	class RimFridge_Building : Building_Storage, IRenameable
+	class RimFridge_Building : Building_Storage, ICompRefrigeratorParent, IRenameable
 	{
 		public Room[] rooms;
 
@@ -321,6 +321,16 @@ namespace RimFridge
 			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.rimFridgeCache[this.Map], GenAdj.OccupiedRect(this));
 		}
 
+		public virtual float GetTemperatureOfSurroundings (CompRefrigerator comp)
+		{
+			return this.rooms[0].Temperature;
+		}
+
+		public virtual void PushTransferredAndGeneratedHeat (float energy, CompRefrigerator comp)
+		{
+			this.rooms[0].PushHeat(energy);
+		}
+
 		public virtual void ReactToChangeOfRegionsAndRooms ()
 		{
 			if (!this.Spawned)
@@ -427,6 +437,63 @@ namespace RimFridge
 
 			FridgeCacheFast.RemoveFromCache(FridgeCacheFast.wallFridgeCache[this.Map], GenAdj.OccupiedRect(this));
 		}
+
+		public override float GetTemperatureOfSurroundings (CompRefrigerator comp)
+		{
+			float totalTemperature = 0f;
+
+			Room[] rooms = this.rooms;
+			int roomCount = rooms.Length;
+
+			if (roomCount == 0)
+			{
+				goto slowAndSillyPath;
+			}
+
+			for (int index = 0; index < roomCount; ++index)
+			{
+				totalTemperature += rooms[index].Temperature;
+			}
+
+			return totalTemperature / (float) roomCount;
+		slowAndSillyPath:
+			RoofDef roof = this.Position.GetRoof(this.Map);
+
+			if (roof == null)
+			{
+				return this.Map.mapTemperature.OutdoorTemp;
+			}
+
+			return comp.currentTemp;
+		}
+
+		public override void PushTransferredAndGeneratedHeat (float energy, CompRefrigerator comp)
+		{
+			Room[] rooms = this.rooms;
+			int roomCount = rooms.Length;
+
+			if (roomCount == 0)
+			{
+				goto slowAndSillyPath;
+			}
+
+			float energyPerRoom = energy / (float) roomCount;
+
+			for (int index = 0; index < roomCount; ++index)
+			{
+				rooms[index].PushHeat(energyPerRoom);
+			}
+
+			return;
+		slowAndSillyPath:
+			RoofDef roof = this.Position.GetRoof(this.Map);
+
+			if (roof == null)
+			{
+				return;
+			}
+
+			comp.currentTemp += energy + 1f;
 		}
 	}
 
