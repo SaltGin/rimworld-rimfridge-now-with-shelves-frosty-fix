@@ -599,47 +599,333 @@ namespace RimFridge
 
 	public static class DisplayStackedItemsNicelyInFridges
 	{
-		[HarmonyPatch(typeof(GenThing), nameof(GenThing.TrueCenter), new[] {typeof(Thing)})]
+		/* This is Verse.Altitudes.LayerSpacing, which is private for whatever reason. */
+		public const float altitudeLayerSpacing = 0.36585367f;
+		public const float altitudeOfItemInFridge = altitudeLayerSpacing * (float) AltitudeLayer.Item;
+		public const float itemInFridgeSpacing = 0.004054054f;
+		public const float itemInFridgeSpacingInverse = 1f / itemInFridgeSpacing;
+		public const float itemInFridgeLabelSpacing = 17f;
+
 		public static class MungeTrueCenterOfItemsInFridges
 		{
-			[HarmonyPostfix]
-			public static Vector3 MungeTrueCenter (Vector3 originalValue, Thing t)
+			[HarmonyPatch(typeof(GenThing), "ItemCenterAt", new[] {typeof(Thing)})]
+			public static class MungeItemCenterTranspiler
 			{
-				if (t.def.category == ThingCategory.Item && t.Spawned)
+				[HarmonyTranspiler]
+				static public IEnumerable<CodeInstruction> MungeItemCenter (
+					IEnumerable<CodeInstruction> theInstructions,
+					ILGenerator il
+				)
 				{
-					var things = t.Map.thingGrid.ThingsListAtFast(t.Position);
+					/* Here we're looking for a piece of code that looks like:
+							...
+							IntVec3 position = thing.Position;
+							...
+							int itemCount = 0;
+							...
+							int itemsWithLowerID = 0;
+							...
+							List<Thing> thingList = GridsUtility.GetThingList(position, thing.Map);
+							...
+							if (itemCount <= 1)
+							{
+								...
+							}
+							...
+					   and replacing it with some code that looks like this:
+							...
+							IntVec3 position = thing.Position;
+							...
+							int itemCount = 0;
+							...
+							int itemsWithLowerID = 0;
+							...
+							List<Thing> thingList = GridsUtility.GetThingList(position, thing.Map);
+							...
+							if (thingList.Count > 1 && FridgeCacheFast.rimFridgeCache[thing.Map].ContainsKey(position))
+							{
+								float d = (float) itemsWithLowerID;
 
-					if (things.Count > 2)
+								return new Vector3(
+									(float) position.x + 0.5f,
+									altitudeOfItemInFridge + d * itemInFridgeSpacing,
+									(float) position.z + 0.45f + d * 0.0625f
+								);
+							}
+							if (itemCount <= 1)
+							{
+								...
+							}
+							...
+					*/
+
+					using IEnumerator<CodeInstruction> instructions = theInstructions.GetEnumerator();
+
+					MethodInfo getPositionOfThing = typeof(Thing).GetProperty(nameof(Thing.Position)).GetMethod;
+					MethodInfo getMapOfThing = typeof(Thing).GetProperty(nameof(Thing.Map)).GetMethod;
+					MethodInfo getThingList = typeof(GridsUtility).GetMethod(nameof(GridsUtility.GetThingList), new[] {typeof(IntVec3), typeof(Map)});
+					MethodInfo thingListCount = typeof(List<Thing>).GetProperty("Count").GetMethod;
+					FieldInfo rimFridgeCacheField = typeof(FridgeCacheFast).GetField(nameof(FridgeCacheFast.rimFridgeCache), BindingFlags.NonPublic | BindingFlags.Static);
+					MethodInfo rimFridgeCacheContainsKey = typeof(Dictionary<IntVec3, RimFridge_Building>).GetMethod("ContainsKey");
+					MethodInfo rimFridgeCacheByMapGetItem = typeof(Dictionary<Map, Dictionary<IntVec3, RimFridge_Building>>).GetProperty("Item").GetMethod;
+					FieldInfo intVec3x = typeof(IntVec3).GetField(nameof(IntVec3.x));
+					FieldInfo intVec3z = typeof(IntVec3).GetField(nameof(IntVec3.z));
+					ConstructorInfo vector3Ctor = typeof(Vector3).GetConstructor(new[] {typeof(float), typeof(float), typeof(float)});
+
+					uint patchStage = 0;
+
+					CodeInstruction instruction;
+					int positionLocalIndex;
+					int depthLocalIndex;
+					int itemsWithLowerIDCaptureStructLocalIndex;
+					FieldInfo itemsWithLowerIDField;
+					int thingListLocal;
+				findInitialisationOfPosition:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.Calls(getPositionOfThing))
 					{
-						var thingID = t.thingIDNumber;
-						int depthInStack = 0;
-						bool haveFridgeInCell = false;
+						goto findInitialisationOfPosition;
+					}
 
-						foreach (var eachThing in things)
+					instructions.MoveNext();
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.StoresLocal(out positionLocalIndex))
+					{
+						goto findInitialisationOfPosition;
+					}
+
+					++patchStage;
+				findInitialisationOfDepth:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.LoadsConstant(0))
+					{
+						goto findInitialisationOfDepth;
+					}
+
+					instructions.MoveNext();
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.StoresLocal(out depthLocalIndex))
+					{
+						goto findInitialisationOfDepth;
+					}
+
+					++patchStage;
+				findInitialisationOfItemsWithLowerID:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.LoadsLocalAddress(out itemsWithLowerIDCaptureStructLocalIndex))
+					{
+						goto findInitialisationOfItemsWithLowerID;
+					}
+
+					instructions.MoveNext();
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.LoadsConstant(0))
+					{
+						goto findInitialisationOfItemsWithLowerID;
+					}
+
+					instructions.MoveNext();
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (instruction.opcode != OpCodes.Stfld)
+					{
+						goto findInitialisationOfItemsWithLowerID;
+					}
+
+					itemsWithLowerIDField = (FieldInfo) instruction.operand;
+
+					++patchStage;
+				findInitialisationOfThingList:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.Calls(getThingList))
+					{
+						goto findInitialisationOfThingList;
+					}
+
+					instructions.MoveNext();
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					if (!instruction.StoresLocal(out thingListLocal))
+					{
+						goto findInitialisationOfThingList;
+					}
+
+					++patchStage;
+				findComparisonWithDepth:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					if (!instruction.LoadsLocal(depthLocalIndex))
+					{
+						yield return instruction;
+						goto findComparisonWithDepth;
+					}
+
+					CodeInstruction loadDepthLocal = instruction;
+
+					instructions.MoveNext();
+					instruction = instructions.Current;
+
+					if (!instruction.LoadsConstant(1))
+					{
+						yield return loadDepthLocal;
+						yield return instruction;
+						goto findComparisonWithDepth;
+					}
+
+					CodeInstruction load1 = instruction;
+
+					instructions.MoveNext();
+					instruction = instructions.Current;
+
+					if ((instruction.opcode != OpCodes.Bgt_S) & (instruction.opcode != OpCodes.Bgt))
+					{
+						yield return loadDepthLocal;
+						yield return load1;
+						yield return instruction;
+						goto findComparisonWithDepth;
+					}
+
+					++patchStage;
+
+					Label notInARimFridgeTarget = il.DefineLabel();
+					LocalBuilder floatLocal = il.DeclareLocal(typeof(float));
+
+					yield return CodeInstruction.LoadLocal(thingListLocal).TakeLabelsFrom(loadDepthLocal);
+					yield return new CodeInstruction(OpCodes.Call, thingListCount);
+					yield return new CodeInstruction(OpCodes.Ldc_I4_1);
+					yield return new CodeInstruction(OpCodes.Ble_S, notInARimFridgeTarget);
+
+					yield return new CodeInstruction(OpCodes.Ldsfld, rimFridgeCacheField);
+					yield return new CodeInstruction(OpCodes.Ldarg_0);
+					yield return new CodeInstruction(OpCodes.Call, getMapOfThing);
+					yield return new CodeInstruction(OpCodes.Call, rimFridgeCacheByMapGetItem);
+					yield return CodeInstruction.LoadLocal(positionLocalIndex);
+					yield return new CodeInstruction(OpCodes.Call, rimFridgeCacheContainsKey);
+
+					yield return new CodeInstruction(OpCodes.Brfalse_S, notInARimFridgeTarget);
+
+					yield return CodeInstruction.LoadLocal(itemsWithLowerIDCaptureStructLocalIndex, true);
+					yield return new CodeInstruction(OpCodes.Ldfld, itemsWithLowerIDField);
+					yield return new CodeInstruction(OpCodes.Conv_R4);
+					yield return CodeInstruction.StoreLocal(floatLocal.LocalIndex);
+
+					yield return CodeInstruction.LoadLocal(positionLocalIndex);
+					yield return new CodeInstruction(OpCodes.Ldfld, intVec3x);
+					yield return new CodeInstruction(OpCodes.Conv_R4);
+					yield return new CodeInstruction(OpCodes.Ldc_R4, 0.5f);
+					yield return new CodeInstruction(OpCodes.Add);
+
+					yield return new CodeInstruction(OpCodes.Ldc_R4, altitudeOfItemInFridge);
+					yield return CodeInstruction.LoadLocal(floatLocal.LocalIndex);
+					yield return new CodeInstruction(OpCodes.Ldc_R4, itemInFridgeSpacing);
+					yield return new CodeInstruction(OpCodes.Mul);
+					yield return new CodeInstruction(OpCodes.Add);
+
+					yield return CodeInstruction.LoadLocal(positionLocalIndex);
+					yield return new CodeInstruction(OpCodes.Ldfld, intVec3z);
+					yield return new CodeInstruction(OpCodes.Conv_R4);
+					yield return new CodeInstruction(OpCodes.Ldc_R4, 0.45f);
+					yield return new CodeInstruction(OpCodes.Add);
+					yield return CodeInstruction.LoadLocal(floatLocal.LocalIndex);
+					yield return new CodeInstruction(OpCodes.Ldc_R4, 0.0625f);
+					yield return new CodeInstruction(OpCodes.Mul);
+					yield return new CodeInstruction(OpCodes.Add);
+
+					yield return new CodeInstruction(OpCodes.Newobj, vector3Ctor);
+					yield return new CodeInstruction(OpCodes.Ret);
+
+					yield return loadDepthLocal.LabelWith(notInARimFridgeTarget);
+					yield return load1;
+					yield return instruction;
+				yieldRestOfCode:
+					if (!instructions.MoveNext()) goto noMoreInstructions;
+					instruction = instructions.Current;
+
+					yield return instruction;
+
+					goto yieldRestOfCode;
+				noMoreInstructions:
+					if (patchStage == 5)
+					{
+						yield break;
+					}
+
+					throw new TranspilerFallbackException("The transpiler patch for `GenThing.ItemCenterAt` failed to apply, so we're falling back to a slower postfix patch.");
+				}
+			}
+
+			[HarmonyPatch(typeof(GenThing), nameof(GenThing.TrueCenter), new[] {typeof(Thing)})]
+			public static class MungeTrueCenterPostfix
+			{
+				[HarmonyPostfix]
+				public static Vector3 MungeTrueCenter (Vector3 originalValue, Thing t)
+				{
+					if (t.def.category == ThingCategory.Item && t.Spawned)
+					{
+						IntVec3 position = t.Position;
+						var things = t.Map.thingGrid.ThingsListAtFast(position);
+
+						if (things.Count > 2)
 						{
-							haveFridgeInCell = haveFridgeInCell || eachThing is RimFridge_Building;
-							depthInStack += (
-								eachThing.thingIDNumber < thingID
-								&& eachThing.def.category == ThingCategory.Item
-							) ? 1 : 0;
-						}
+							var thingID = t.thingIDNumber;
+							int depthInStack = 0;
+							bool haveFridgeInCell = false;
 
-						if (haveFridgeInCell)
-						{
-							IntVec3 p = t.Position;
-							Vector3 v = p.ToVector3Shifted();
-							float altitude = t.def.Altitude;
+							foreach (var eachThing in things)
+							{
+								haveFridgeInCell = haveFridgeInCell || eachThing is RimFridge_Building;
+								depthInStack += (
+									eachThing.thingIDNumber < thingID
+									&& eachThing.def.category == ThingCategory.Item
+								) ? 1 : 0;
+							}
 
-							return new Vector3(
-								v.x,
-								altitude + (float) depthInStack * (3f / 74f) / 10f,
-								v.z + (float) depthInStack / 16f - 0.05f
-							);
+							if (haveFridgeInCell)
+							{
+								Vector3 v = position.ToVector3Shifted();
+								float d = (float) depthInStack;
+
+								return new Vector3(
+									v.x,
+									altitudeOfItemInFridge + d * itemInFridgeSpacing,
+									v.z + d * 0.0625f - 0.05f
+								);
+							}
 						}
 					}
-				}
 
-				return originalValue;
+					return originalValue;
+				}
 			}
 		}
 
