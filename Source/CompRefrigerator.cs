@@ -86,6 +86,7 @@ namespace RimFridge
 
 		public List<string> drinksBestCold => ((CompProperties_Refrigerator) props).drinksBestCold;
 		public float defaultDesiredTemperature => ((CompProperties_Refrigerator) props).defaultDesiredTemperature;
+		public HashSet<ThingDef> drinksBestColdDefs => ((CompProperties_Refrigerator) this.props).drinksBestColdDefs;
 
 		private void InterfaceChangeTargetTemperature (float offset)
 		{
@@ -124,6 +125,7 @@ namespace RimFridge
 
 					if (thingCount > 1)
 					{
+						HashSet<ThingDef> drinksBestColdDefs = this.drinksBestColdDefs;
 						int index = 0;
 
 						do
@@ -134,7 +136,7 @@ namespace RimFridge
 							if (
 								   def.category == ThingCategory.Item
 								&& thing is ThingWithComps thingWithComps
-								&& this.drinksBestCold.Contains(def.defName)
+								&& drinksBestColdDefs.Contains(def)
 								&& thingWithComps.GetComp<CompFrosty>() == null
 							)
 							{
