@@ -38,6 +38,7 @@
 			<maxItemsInCell>3</maxItemsInCell>
 			<fixedStorageSettings>
 				<filter>
+					<disallowNotEverStorable>true</disallowNotEverStorable>
 					<categories>
 						<li>AnimalProductRaw</li>
 						<li>Corpses</li>
