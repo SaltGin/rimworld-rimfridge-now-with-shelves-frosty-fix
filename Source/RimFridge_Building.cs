@@ -349,9 +349,14 @@ namespace RimFridge
 				return;
 			}
 
+			this.rooms = GatherRooms(this.Position, this.Map);
+		}
+
+		public static Room[] GatherRooms (IntVec3 cell, Map map)
+		{
 			Room[] rooms = new Room[1];
-			rooms[0] = this.Position.GetRoom(this.Map);
-			this.rooms = rooms;
+			rooms[0] = cell.GetRoom(map);
+			return rooms;
 		}
 	}
 
@@ -370,8 +375,11 @@ namespace RimFridge
 				return;
 			}
 
-			Region[] possibleRegions = this.GatherAdjacentRegions();
+			this.rooms = GatherRooms(this.GatherAdjacentRegions());
+		}
 
+		public static Room[] GatherRooms (Region[] possibleRegions)
+		{
 			int possibleCount = possibleRegions.Length;
 			int uniqueCount = 0;
 
@@ -429,7 +437,7 @@ namespace RimFridge
 
 			Array.Resize(ref rooms, roomCount);
 
-			this.rooms = rooms;
+			return rooms;
 		}
 
 		public abstract Region[] GatherAdjacentRegions ();
@@ -611,13 +619,16 @@ namespace RimFridge
 
 		public override Region[] GatherAdjacentRegions ()
 		{
+			return GatherAdjacentRegions(this.Position, this.Map, this.Rotation, this.def);
+		}
+
+		public static Region[] GatherAdjacentRegions (IntVec3 cell, Map map, Rot4 rotatedBy, ThingDef def)
+		{
 			Region[] regions;
 
-			int sizeX = this.def.size.x - 1;
+			int sizeX = def.size.x - 1;
 
-			IntVec3 cell = this.Position;
-			Map map = this.Map;
-			int rotation = this.Rotation.AsInt;
+			int rotation = rotatedBy.AsInt;
 
 			if (sizeX == 0)
 			{
