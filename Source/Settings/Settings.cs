@@ -213,11 +213,11 @@ namespace RimFridge
 			}
 
 			Widgets.Label(new Rect(20, 100, 400, 30), "RimFridge.PowerFactorExplanation".Translate());
-			Widgets.CheckboxLabeled(new Rect(0, 140, 200, 30), "RimFridge.ActAsTradeBeacon".Translate(), ref Settings.ActAsBeacon);
-			Widgets.CheckboxLabeled(new Rect(0, 180, 200, 30), "RimFridge.EnableFrostyBeverages".Translate(), ref Settings.enableFrostyBeverages);
-			Widgets.CheckboxLabeled(new Rect(0, 210, 200, 30), "RimFridge.UglyStackAppearance".Translate(), ref Settings.uglyStackAppearance);
+			Widgets.CheckboxLabeled(new Rect(0, 140, 300, 30), "RimFridge.ActAsTradeBeacon".Translate(), ref Settings.ActAsBeacon);
+			Widgets.CheckboxLabeled(new Rect(0, 180, 300, 30), "RimFridge.EnableFrostyBeverages".Translate(), ref Settings.enableFrostyBeverages);
+			Widgets.CheckboxLabeled(new Rect(0, 210, 300, 30), "RimFridge.UglyStackAppearance".Translate(), ref Settings.uglyStackAppearance);
 
-			Widgets.Label(new Rect(0, 240, 200, 30), "RimFridge.DefaultMaximumItemsPerCellSetting".Translate(Settings.defaultMaximumItemsPerCell));
+			Widgets.Label(new Rect(0, 240, 300, 30), "RimFridge.DefaultMaximumItemsPerCellSetting".Translate(Settings.defaultMaximumItemsPerCell));
 
 			if (
 				   Settings.defaultMaximumItemsPerCell > 0
@@ -235,17 +235,17 @@ namespace RimFridge
 				++Settings.defaultMaximumItemsPerCell;
 			}
 
-			Widgets.Label(new Rect(0, 270, 200, 30), "RimFridge.PrisonCellSideAvoidanceStrength".Translate());
+			Widgets.Label(new Rect(0, 270, 300, 30), "RimFridge.PrisonCellSideAvoidanceStrength".Translate());
 			Widgets.IntEntry(new Rect(320, 270, 260, 30), ref Settings.prisonCellSideAvoidanceStrength, ref guiState.prisonCellSideAvoidanceStrengthBuffer);
 
 			if (ShouldShowCompatibilitySettings)
 			{
-				Widgets.DrawMenuSection(new Rect(0, 300, 800, 370));
+				Widgets.DrawMenuSection(new Rect(0, 310, 800, 240));
 
-				Widgets.Label(new Rect(10, 300, 790, 30), "RimFridge.Compatibility".Translate());
+				Widgets.Label(new Rect(10, 310, 790, 30), "RimFridge.Compatibility".Translate());
 
 				Widgets.Label(new Rect(10, 330, 790, 30), "RimFridge.ForceApplicationOfThesePatches".Translate());
-				Widgets.BeginScrollView(new Rect(0, 370, 800, 300), ref guiState.forcedApplicationOfPatchesScrollPosition, new Rect(0, 250, 800 - GenUI.ScrollBarWidth, 30 * Settings.forcedApplicationOfPatches.Count));
+				Widgets.BeginScrollView(new Rect(0, 370, 800, 180), ref guiState.forcedApplicationOfPatchesScrollPosition, new Rect(0, 370, 800 - GenUI.ScrollBarWidth, 30 * Settings.forcedApplicationOfPatches.Count));
 
 				for (int index = 0; index < Settings.forcedApplicationOfPatches.Count; ++index)
 				{
