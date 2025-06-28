@@ -308,7 +308,8 @@ $Translations = [Ordered] @{
 			'RimFridge_QuadRefrigerator.building.groupingLabel' = 'Nagy Fagasztó'
 		} <# END DefInjected/ThingDef/Fridge_Building #>
 		'DefInjected/ThingDef/WallFridge_Building' = [Ordered] @{
-
+			'RimFridge_SingleWallRefrigerator.building.groupingLabel' = 'Fali Egyetlen Hűtőszekrény'
+			'RimFridge_WallRefrigerator.building.groupingLabel' = 'Fali Kettős Hűtőszekrény'
 		} <# END DefInjected/ThingDef/WallFridge_Building #>
 		'DefInjected/ThoughtDef/FrostyBeer' = [Ordered] @{
 			'FrostyBeer.stages.0.label' = 'élvezd a hideget'
@@ -481,7 +482,8 @@ $Translations = [Ordered] @{
 			'RimFridge_QuadRefrigerator.building.groupingLabel' = 'Duża chłodziarka'
 		} <# END DefInjected/ThingDef/Fridge_Building #>
 		'DefInjected/ThingDef/WallFridge_Building' = [Ordered] @{
-
+			'RimFridge_SingleWallRefrigerator.building.groupingLabel' = 'Ściana Pojedyncza Lodówka'
+			'RimFridge_WallRefrigerator.building.groupingLabel' = 'Podwójna Lodówka Ścienna'
 		} <# END DefInjected/ThingDef/WallFridge_Building #>
 		'DefInjected/ThoughtDef/FrostyBeer' = [Ordered] @{
 			'FrostyBeer.stages.0.label' = 'Cieszy się z zimnego browaru'
@@ -520,7 +522,8 @@ $Translations = [Ordered] @{
 			'RimFridge_QuadRefrigerator.building.groupingLabel' = ''
 		} <# END DefInjected/ThingDef/Fridge_Building #>
 		'DefInjected/ThingDef/WallFridge_Building' = [Ordered] @{
-
+			'RimFridge_SingleWallRefrigerator.building.groupingLabel' = 'Único Refrigerador Da Parede'
+			'RimFridge_WallRefrigerator.building.groupingLabel' = 'Refrigerador Duplo Da Parede'
 		} <# END DefInjected/ThingDef/WallFridge_Building #>
 		'DefInjected/ThoughtDef/FrostyBeer' = [Ordered] @{
 			'FrostyBeer.stages.0.label' = 'curtiu uma gelada'
