@@ -18,6 +18,9 @@
 			<ai_chillDestination>true</ai_chillDestination>
 			<canPlaceOverWall>true</canPlaceOverWall>
 		</building>
+		<placeWorkers>
+			<li>RimFridge.RimFridgeDoubledSidedWallBuildingPlaceWorker</li>
+		</placeWorkers>
 	</ThingDef>
 
 	<ThingDef ParentName="WallFridgeBase">

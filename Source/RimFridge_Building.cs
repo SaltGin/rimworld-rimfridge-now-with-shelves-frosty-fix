@@ -788,5 +788,67 @@ namespace RimFridge
 			this.pathFindCostCellRect.maxZ = 0;
 		}
 	}
+
+
+	public class RimFridgeNonWallBuildingPlaceWorker : PlaceWorker
+	{
+		public override void DrawGhost (ThingDef def, IntVec3 centre, Rot4 rotation, Color ghostColour, Thing thing)
+		{
+			List<IntVec3> cells = new List<IntVec3>();
+
+			Room[] rooms = RimFridge_Building.GatherRooms(centre, Find.CurrentMap);
+			int roomCount = rooms.Length;
+
+			for (int index = 0; index < roomCount; ++index)
+			{
+				Room room = rooms[index];
+
+				if (room != null && !room.UsesOutdoorTemperature)
+				{
+					cells.AddRange(room.Cells);
+					GenDraw.DrawFieldEdges(cells, GenTemperature.ColorRoomHot);
+					cells.Clear();
+				}
+			}
+		}
+	}
+
+
+	public class RimFridgeDoubledSidedWallBuildingPlaceWorker : PlaceWorker
+	{
+		public override void DrawGhost (ThingDef def, IntVec3 centre, Rot4 rotation, Color ghostColour, Thing thing)
+		{
+			List<IntVec3> cells = new List<IntVec3>();
+
+			cells.Add(centre + new IntVec3(0, 0, +1).RotatedBy(rotation));
+			cells.Add(centre + new IntVec3(0, 0, -1).RotatedBy(rotation));
+
+			if (def.size.x != 1)
+			{
+				cells.Add(centre + new IntVec3(+1, 0, +1).RotatedBy(rotation));
+				cells.Add(centre + new IntVec3(+1, 0, -1).RotatedBy(rotation));
+			}
+
+			GenDraw.DrawFieldEdges(cells, new Color(0.35f, 1f, 0f));
+
+			Room[] rooms = RimFridge_WallBuilding.GatherRooms(
+				RimFridge_DoubleSidedWallBuilding.GatherAdjacentRegions(centre, Find.CurrentMap, rotation, def)
+			);
+
+			int roomCount = rooms.Length;
+
+			for (int index = 0; index < roomCount; ++index)
+			{
+				Room room = rooms[index];
+
+				if (!room.UsesOutdoorTemperature)
+				{
+					cells.Clear();
+					cells.AddRange(room.Cells);
+					GenDraw.DrawFieldEdges(cells, GenTemperature.ColorRoomHot);
+				}
+			}
+		}
+	}
 }
 

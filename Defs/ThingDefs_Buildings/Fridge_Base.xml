@@ -98,9 +98,6 @@
 		<description>Rottable things stored in this will not spoil.</description>
 		<tickerType>Rare</tickerType>
 		<designationCategory>Temperature</designationCategory>
-		<placeWorkers>
-			<li>PlaceWorker_Heater</li>
-		</placeWorkers>
 		<researchPrerequisites>
 			<li>AirConditioning</li>
 		</researchPrerequisites>

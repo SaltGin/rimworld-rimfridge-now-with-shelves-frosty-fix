@@ -38,6 +38,9 @@
 		<building>
 			<groupingLabel>Single Refrigerator</groupingLabel>
 		</building>
+		<placeWorkers>
+			<li>RimFridge.RimFridgeNonWallBuildingPlaceWorker</li>
+		</placeWorkers>
 	</ThingDef>
 
 	<ThingDef ParentName="FridgeBase">
@@ -84,6 +87,9 @@
 		<building>
 			<groupingLabel>Dual Refrigerator</groupingLabel>
 		</building>
+		<placeWorkers>
+			<li>RimFridge.RimFridgeNonWallBuildingPlaceWorker</li>
+		</placeWorkers>
 	</ThingDef>
 
 
@@ -131,5 +137,8 @@
 		<building>
 			<groupingLabel>Quad Refrigerator</groupingLabel>
 		</building>
+		<placeWorkers>
+			<li>RimFridge.RimFridgeNonWallBuildingPlaceWorker</li>
+		</placeWorkers>
 	</ThingDef>
 </Defs>
