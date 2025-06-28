@@ -213,11 +213,16 @@ namespace RimFridge
 			}
 
 			Widgets.Label(new Rect(20, 100, 400, 30), "RimFridge.PowerFactorExplanation".Translate());
+
 			Widgets.CheckboxLabeled(new Rect(0, 140, 300, 30), "RimFridge.ActAsTradeBeacon".Translate(), ref Settings.ActAsBeacon);
+			TooltipHandler.TipRegion(new Rect(0, 140, 300, 30), "RimFridge.ActAsTradeBeaconDescription".Translate());
 			Widgets.CheckboxLabeled(new Rect(0, 180, 300, 30), "RimFridge.EnableFrostyBeverages".Translate(), ref Settings.enableFrostyBeverages);
+			TooltipHandler.TipRegion(new Rect(0, 180, 300, 30), "RimFridge.EnableFrostyBeveragesDescription".Translate());
 			Widgets.CheckboxLabeled(new Rect(0, 210, 300, 30), "RimFridge.UglyStackAppearance".Translate(), ref Settings.uglyStackAppearance);
+			TooltipHandler.TipRegion(new Rect(0, 210, 300, 30), "RimFridge.UglyStackAppearanceDescription".Translate());
 
 			Widgets.Label(new Rect(0, 240, 300, 30), "RimFridge.DefaultMaximumItemsPerCellSetting".Translate(Settings.defaultMaximumItemsPerCell));
+			TooltipHandler.TipRegion(new Rect(0, 240, 300, 30), "RimFridge.DefaultMaximumItemsPerCellSettingDescription".Translate());
 
 			if (
 				   Settings.defaultMaximumItemsPerCell > 0
@@ -236,6 +241,7 @@ namespace RimFridge
 			}
 
 			Widgets.Label(new Rect(0, 270, 300, 30), "RimFridge.PrisonCellSideAvoidanceStrength".Translate());
+			TooltipHandler.TipRegion(new Rect(0, 270, 300, 30), "RimFridge.PrisonCellSideAvoidanceStrengthDescription".Translate(1600));
 			Widgets.IntEntry(new Rect(320, 270, 260, 30), ref Settings.prisonCellSideAvoidanceStrength, ref guiState.prisonCellSideAvoidanceStrengthBuffer);
 
 			if (ShouldShowCompatibilitySettings)
