@@ -243,7 +243,7 @@ namespace RimFridge
 
 			Widgets.Label(new Rect(0, 270, 300, 30), "RimFridge.PrisonCellSideAvoidanceStrength".Translate());
 			TooltipHandler.TipRegion(new Rect(0, 270, 300, 30), "RimFridge.PrisonCellSideAvoidanceStrengthDescription".Translate(1600));
-			Widgets.IntEntry(new Rect(320, 270, 260, 30), ref Settings.prisonCellSideAvoidanceStrength, ref guiState.prisonCellSideAvoidanceStrengthBuffer);
+			Widgets.IntEntry(new Rect(320, 270, 320, 30), ref Settings.prisonCellSideAvoidanceStrength, ref guiState.prisonCellSideAvoidanceStrengthBuffer, 100);
 
 			if (ShouldShowCompatibilitySettings)
 			{
