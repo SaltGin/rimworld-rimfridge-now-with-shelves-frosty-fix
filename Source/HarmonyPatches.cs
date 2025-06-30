@@ -433,7 +433,7 @@ namespace RimFridge
 			  			return;
 					}
 
-					if (!FridgeCacheFast.doubleSidedCache[__instance.map].TryGetValue(__instance.dest, out RimFridge_DoubleSidedWallBuilding doubleSided))
+					if (!FridgeCacheFast.multiSidedCache[__instance.map].TryGetValue(__instance.dest, out RimFridge_MultiSidedWallBuilding multiSided))
 					{
 						return;
 					}
@@ -441,19 +441,19 @@ namespace RimFridge
 					Room roomOfPawn = __instance.map.regionGrid.GetValidRegionAt(pawn.Position).Room;
 
 					/* If they're already in one of the prison-cells there's no call for discouraging them from entering them. */
-					for (int index = 0; index < doubleSided.prisonCellSidesToAvoid.Length; ++index)
+					for (int index = 0; index < multiSided.prisonCellSidesToAvoid.Length; ++index)
 					{
-						if (roomOfPawn == doubleSided.prisonCellSidesToAvoid[index])
+						if (roomOfPawn == multiSided.prisonCellSidesToAvoid[index])
 						{
 							return;
 						}
 					}
 
-					ushort pathCost = RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost;
+					ushort pathCost = RimFridge_MultiSidedWallBuilding.prisonCellSideAvoidancePathFindCost;
 
 					ref Unity.Collections.NativeArray<ushort> providerCost = ref __instance.providerCost;
 
-					int[] pathFindCostCells = doubleSided.pathFindCostCells;
+					int[] pathFindCostCells = multiSided.pathFindCostCells;
 					int cellCount = pathFindCostCells.Length;
 
 					for (int index = 0; index < cellCount; ++index)
@@ -1424,7 +1424,14 @@ namespace RimFridge
 				   and the patch is applied and removed on demand,
 				   so there's no performance impact in the usual case. */
 
-				if (providedClassName != "RimFridge.RimFridge_Building")
+				if (
+					   providedClassName == null
+					|| !providedClassName.StartsWith("RimFridge.RimFridge_")
+					|| (
+						   providedClassName != "RimFridge.RimFridge_Building"
+						&& providedClassName != "RimFridge.RimFridge_DoubleSidedWallBuilding"
+					)
+				)
 				{
 					return true;
 				}
@@ -1445,7 +1452,7 @@ namespace RimFridge
 								)
 								{
 									Logger.Message("Found an old-style wall-fridge; migrating it to the new-style.");
-									__result = typeof(RimFridge_DoubleSidedWallBuilding);
+									__result = typeof(RimFridge_MultiSidedWallBuilding);
 									return false;
 								}
 

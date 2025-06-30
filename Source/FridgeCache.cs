@@ -15,22 +15,22 @@ namespace RimFridge
 		private Dictionary<IntVec3, CompRefrigerator> FridgeGrid;
 		private Dictionary<IntVec3, RimFridge_Building> rimFridgeCache;
 		private Dictionary<IntVec3, RimFridge_WallBuilding> wallFridgeCache;
-		private Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding> doubleSidedCache;
+		private Dictionary<IntVec3, RimFridge_MultiSidedWallBuilding> multiSidedCache;
 		private List<CompRefrigerator> compList;
 		private List<RimFridge_Building> rimFridgeList;
 		private List<RimFridge_WallBuilding> wallFridgeList;
-		private List<RimFridge_DoubleSidedWallBuilding> doubleSidedList;
+		private List<RimFridge_MultiSidedWallBuilding> multiSidedList;
 
 		public FridgeCache (Map map) : base(map)
 		{
 			FridgeCacheFast.compCache[map] = (this.FridgeGrid = new Dictionary<IntVec3, CompRefrigerator>());
 			FridgeCacheFast.rimFridgeCache[map] = (this.rimFridgeCache = new Dictionary<IntVec3, RimFridge_Building>());
 			FridgeCacheFast.wallFridgeCache[map] = (this.wallFridgeCache = new Dictionary<IntVec3, RimFridge_WallBuilding>());
-			FridgeCacheFast.doubleSidedCache[map] = (this.doubleSidedCache = new Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding>());
+			FridgeCacheFast.multiSidedCache[map] = (this.multiSidedCache = new Dictionary<IntVec3, RimFridge_MultiSidedWallBuilding>());
 			FridgeCacheFast.compList[map] = (this.compList = new List<CompRefrigerator>());
 			FridgeCacheFast.rimFridgeList[map] = (this.rimFridgeList = new List<RimFridge_Building>());
 			FridgeCacheFast.wallFridgeList[map] = (this.wallFridgeList = new List<RimFridge_WallBuilding>());
-			FridgeCacheFast.doubleSidedList[map] = (this.doubleSidedList = new List<RimFridge_DoubleSidedWallBuilding>());
+			FridgeCacheFast.multiSidedList[map] = (this.multiSidedList = new List<RimFridge_MultiSidedWallBuilding>());
 
 			map.events.RegionsRoomsChanged += this.ReactToChangeOfRegionsAndRooms;
 		}
@@ -68,9 +68,9 @@ namespace RimFridge
 				{
 					FridgeCacheFast.AddToCache(FridgeCacheFast.wallFridgeCache[map], FridgeCacheFast.wallFridgeList[map], wallFridge, cells);
 
-					if (parent is RimFridge_DoubleSidedWallBuilding doubleSided)
+					if (parent is RimFridge_MultiSidedWallBuilding multiSided)
 					{
-						FridgeCacheFast.AddToCache(FridgeCacheFast.doubleSidedCache[map], FridgeCacheFast.doubleSidedList[map], doubleSided, cells);
+						FridgeCacheFast.AddToCache(FridgeCacheFast.multiSidedCache[map], FridgeCacheFast.multiSidedList[map], multiSided, cells);
 					}
 				}
 			}
@@ -97,9 +97,9 @@ namespace RimFridge
 				{
 					FridgeCacheFast.RemoveFromCache(FridgeCacheFast.wallFridgeCache[map], FridgeCacheFast.wallFridgeList[map], wallFridge, cells);
 
-					if (parent is RimFridge_DoubleSidedWallBuilding doubleSided)
+					if (parent is RimFridge_MultiSidedWallBuilding multiSided)
 					{
-						FridgeCacheFast.RemoveFromCache(FridgeCacheFast.doubleSidedCache[map], FridgeCacheFast.doubleSidedList[map], doubleSided, cells);
+						FridgeCacheFast.RemoveFromCache(FridgeCacheFast.multiSidedCache[map], FridgeCacheFast.multiSidedList[map], multiSided, cells);
 					}
 				}
 			}
@@ -115,20 +115,20 @@ namespace RimFridge
 			FridgeCacheFast.compCache.Remove(this.map);
 			FridgeCacheFast.rimFridgeCache.Remove(this.map);
 			FridgeCacheFast.wallFridgeCache.Remove(this.map);
-			FridgeCacheFast.doubleSidedCache.Remove(this.map);
+			FridgeCacheFast.multiSidedCache.Remove(this.map);
 			FridgeCacheFast.compList.Remove(this.map);
 			FridgeCacheFast.rimFridgeList.Remove(this.map);
 			FridgeCacheFast.wallFridgeList.Remove(this.map);
-			FridgeCacheFast.doubleSidedList.Remove(this.map);
+			FridgeCacheFast.multiSidedList.Remove(this.map);
 
 			this.FridgeGrid.Clear();
 			this.rimFridgeCache.Clear();
 			this.wallFridgeCache.Clear();
-			this.doubleSidedCache.Clear();
+			this.multiSidedCache.Clear();
 			this.compList.Clear();
 			this.rimFridgeList.Clear();
 			this.wallFridgeList.Clear();
-			this.doubleSidedList.Clear();
+			this.multiSidedList.Clear();
 		}
 
 		public void ReactToChangeOfRegionsAndRooms ()
@@ -145,11 +145,11 @@ namespace RimFridge
 		internal static Dictionary<Map, Dictionary<IntVec3, CompRefrigerator>> compCache;
 		internal static Dictionary<Map, Dictionary<IntVec3, RimFridge_Building>> rimFridgeCache;
 		internal static Dictionary<Map, Dictionary<IntVec3, RimFridge_WallBuilding>> wallFridgeCache;
-		internal static Dictionary<Map, Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding>> doubleSidedCache;
+		internal static Dictionary<Map, Dictionary<IntVec3, RimFridge_MultiSidedWallBuilding>> multiSidedCache;
 		internal static Dictionary<Map, List<CompRefrigerator>> compList;
 		internal static Dictionary<Map, List<RimFridge_Building>> rimFridgeList;
 		internal static Dictionary<Map, List<RimFridge_WallBuilding>> wallFridgeList;
-		internal static Dictionary<Map, List<RimFridge_DoubleSidedWallBuilding>> doubleSidedList;
+		internal static Dictionary<Map, List<RimFridge_MultiSidedWallBuilding>> multiSidedList;
 
 		internal static void RemoveFromCache <T> (Dictionary<IntVec3, T> cache, List<T> list, T value, CellRect cells)
 		{
@@ -179,9 +179,9 @@ namespace RimFridge
 	{
 		internal static void ReactToChangeOfPrisonCellStatusForRoom (Room room, bool isPrisonCell)
 		{
-			foreach (RimFridge_DoubleSidedWallBuilding doubleSided in FridgeCacheFast.doubleSidedList[room.Map])
+			foreach (RimFridge_MultiSidedWallBuilding multiSided in FridgeCacheFast.multiSidedList[room.Map])
 			{
-				doubleSided.ReactToChangeOfPrisonCellStatusForRoom();
+				multiSided.ReactToChangeOfPrisonCellStatusForRoom();
 			}
 		}
 	}

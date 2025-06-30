@@ -29,11 +29,11 @@ namespace RimFridge
 			FridgeCacheFast.compCache = new Dictionary<Map, Dictionary<IntVec3, CompRefrigerator>>();
 			FridgeCacheFast.rimFridgeCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_Building>>();
 			FridgeCacheFast.wallFridgeCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_WallBuilding>>();
-			FridgeCacheFast.doubleSidedCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_DoubleSidedWallBuilding>>();
+			FridgeCacheFast.multiSidedCache = new Dictionary<Map, Dictionary<IntVec3, RimFridge_MultiSidedWallBuilding>>();
 			FridgeCacheFast.compList = new Dictionary<Map, List<CompRefrigerator>>();
 			FridgeCacheFast.rimFridgeList = new Dictionary<Map, List<RimFridge_Building>>();
 			FridgeCacheFast.wallFridgeList = new Dictionary<Map, List<RimFridge_WallBuilding>>();
-			FridgeCacheFast.doubleSidedList = new Dictionary<Map, List<RimFridge_DoubleSidedWallBuilding>>();
+			FridgeCacheFast.multiSidedList = new Dictionary<Map, List<RimFridge_MultiSidedWallBuilding>>();
 
 			Patch(typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.SetPathEndModeForReachabilityCanReachSuchThatItemsInFridgeMayBeReached));
 			Patch(typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.SetPathEndModeForThingFromRegionListerReachableSuchThatItemsInWallFridgeMayBeReached));
@@ -382,9 +382,9 @@ namespace RimFridge
 				}
 			}
 
-			ushort oldPrisonCellSideAvoidancePathFindCost = RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost;
+			ushort oldPrisonCellSideAvoidancePathFindCost = RimFridge_MultiSidedWallBuilding.prisonCellSideAvoidancePathFindCost;
 
-			RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost = (ushort) (
+			RimFridge_MultiSidedWallBuilding.prisonCellSideAvoidancePathFindCost = (ushort) (
 				  prisonCellSideAvoidanceStrength < 0
 				? 1600
 				: (
@@ -394,7 +394,7 @@ namespace RimFridge
 				)
 			);
 
-			if (RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost == 0)
+			if (RimFridge_MultiSidedWallBuilding.prisonCellSideAvoidancePathFindCost == 0)
 			{
 				if (SettingsController.appliedDissuadeColonistsFromPathingToWallFridgesViaPrisonCellsPatch != null)
 				{
@@ -419,15 +419,15 @@ namespace RimFridge
 			{
 				ReifyLoadedGameDependentSettings();
 
-				if (oldPrisonCellSideAvoidancePathFindCost != RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost)
+				if (oldPrisonCellSideAvoidancePathFindCost != RimFridge_MultiSidedWallBuilding.prisonCellSideAvoidancePathFindCost)
 				{
 					foreach (Map map in Find.Maps)
 					{
-						if (FridgeCacheFast.doubleSidedList.TryGetValue(map, out List<RimFridge_DoubleSidedWallBuilding> list))
+						if (FridgeCacheFast.multiSidedList.TryGetValue(map, out List<RimFridge_MultiSidedWallBuilding> list))
 						{
-							foreach (RimFridge_DoubleSidedWallBuilding doubleSided in list)
+							foreach (RimFridge_MultiSidedWallBuilding multiSided in list)
 							{
-								doubleSided.ReactToChangeOfPrisonCellStatusForRoom();
+								multiSided.ReactToChangeOfPrisonCellStatusForRoom();
 							}
 						}
 					}
@@ -444,13 +444,13 @@ namespace RimFridge
 
 			foreach (Map map in Find.Maps)
 			{
-				if (FridgeCacheFast.doubleSidedList.TryGetValue(map, out List<RimFridge_DoubleSidedWallBuilding> list))
+				if (FridgeCacheFast.multiSidedList.TryGetValue(map, out List<RimFridge_MultiSidedWallBuilding> list))
 				{
 					GlowGrid glowGrid = map.glowGrid;
 
-					foreach (RimFridge_DoubleSidedWallBuilding doubleSided in list)
+					foreach (RimFridge_MultiSidedWallBuilding multiSided in list)
 					{
-						foreach (IntVec3 cell in doubleSided.OccupiedRect().Cells)
+						foreach (IntVec3 cell in multiSided.OccupiedRect().Cells)
 						{
 							if (blockLight)
 							{

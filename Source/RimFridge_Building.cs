@@ -527,7 +527,7 @@ namespace RimFridge
 		}
 	}
 
-	public class RimFridge_DoubleSidedWallBuilding : RimFridge_WallBuilding
+	public class RimFridge_MultiSidedWallBuilding : RimFridge_WallBuilding
 	{
 		public static ushort prisonCellSideAvoidancePathFindCost;
 
@@ -540,7 +540,7 @@ namespace RimFridge
 		   as it does not matter. */
 		internal Room[] prisonCellSidesToAvoid;
 
-		public RimFridge_DoubleSidedWallBuilding () : base()
+		public RimFridge_MultiSidedWallBuilding () : base()
 		{}
 
 		public override void ReactToChangeOfRegionsAndRooms ()
@@ -573,8 +573,8 @@ namespace RimFridge
 			base.SpawnSetup(map, respawningAfterLoad);
 
 			FridgeCacheFast.AddToCache(
-				FridgeCacheFast.doubleSidedCache[map],
-				FridgeCacheFast.doubleSidedList[map],
+				FridgeCacheFast.multiSidedCache[map],
+				FridgeCacheFast.multiSidedList[map],
 				this,
 				GenAdj.OccupiedRect(this)
 			);
@@ -583,8 +583,8 @@ namespace RimFridge
 		public override void DeSpawn (DestroyMode mode)
 		{
 			FridgeCacheFast.RemoveFromCache(
-				FridgeCacheFast.doubleSidedCache[this.Map],
-				FridgeCacheFast.doubleSidedList[this.Map],
+				FridgeCacheFast.multiSidedCache[this.Map],
+				FridgeCacheFast.multiSidedList[this.Map],
 				this,
 				GenAdj.OccupiedRect(this)
 			);
@@ -841,7 +841,7 @@ namespace RimFridge
 	}
 
 
-	public class RimFridgeDoubledSidedWallBuildingPlaceWorker : PlaceWorker
+	public class RimFridgeMultiSidedWallBuildingPlaceWorker : PlaceWorker
 	{
 		public override void DrawGhost (ThingDef def, IntVec3 centre, Rot4 rotation, Color ghostColour, Thing thing)
 		{
@@ -877,7 +877,7 @@ namespace RimFridge
 			GenDraw.DrawFieldEdges(cells, new Color(0.35f, 1f, 0f));
 
 			Room[] rooms = RimFridge_WallBuilding.GatherRooms(
-				RimFridge_DoubleSidedWallBuilding.GatherAdjacentRegions(centre, map, rotation, def)
+				RimFridge_MultiSidedWallBuilding.GatherAdjacentRegions(centre, map, rotation, def)
 			);
 
 			int roomCount = rooms.Length;

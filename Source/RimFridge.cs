@@ -38,7 +38,7 @@ namespace RimFridge
 
 			Settings.ReifyLoadedGameDependentSettings();
 
-			if (this.backwardsCompatibilityVersionForCurrentSave == 0)
+			if (this.backwardsCompatibilityVersionForCurrentSave <= 1)
 			{
 				SettingsController.Unpatch(typeof(HacksForCompatibility.ChangeTheClassOfOldWallFridges));
 			}
@@ -50,16 +50,16 @@ namespace RimFridge
 			{
 				Scribe_Values.Look(ref this.backwardsCompatibilityVersionForCurrentSave, "backwardsCompatibilityVersion", (uint) 0, true);
 
-				if (this.backwardsCompatibilityVersionForCurrentSave == 0)
+				if (this.backwardsCompatibilityVersionForCurrentSave <= 1)
 				{
-					Logger.Message("backwardsCompatibilityVersionForCurrentSave: v0. Migrating to v1.");
+					Logger.Message($"backwardsCompatibilityVersionForCurrentSave: v{this.backwardsCompatibilityVersionForCurrentSave}. Migrating to v2.");
 					SettingsController.Patch(typeof(HacksForCompatibility.ChangeTheClassOfOldWallFridges));
 				}
 			}
 			else if (Scribe.mode == LoadSaveMode.Saving)
 			{
-				uint latestVersion = 1;
-				Scribe_Values.Look(ref latestVersion, "backwardsCompatibilityVersion", (uint) 1, true);
+				uint latestVersion = 2;
+				Scribe_Values.Look(ref latestVersion, "backwardsCompatibilityVersion", (uint) 2, true);
 			}
 		}
 	}
