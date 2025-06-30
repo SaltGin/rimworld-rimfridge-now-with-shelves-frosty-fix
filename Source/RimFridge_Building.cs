@@ -818,21 +818,39 @@ namespace RimFridge
 	{
 		public override void DrawGhost (ThingDef def, IntVec3 centre, Rot4 rotation, Color ghostColour, Thing thing)
 		{
+			Map map = Find.CurrentMap;
 			List<IntVec3> cells = new List<IntVec3>();
 
-			cells.Add(centre + new IntVec3(0, 0, +1).RotatedBy(rotation));
-			cells.Add(centre + new IntVec3(0, 0, -1).RotatedBy(rotation));
-
-			if (def.size.x != 1)
+			var addCell = (IntVec3 offset) =>
 			{
-				cells.Add(centre + new IntVec3(+1, 0, +1).RotatedBy(rotation));
-				cells.Add(centre + new IntVec3(+1, 0, -1).RotatedBy(rotation));
+				IntVec3 cell = centre + offset.RotatedBy(rotation);
+
+				if (cell.GetRoom(map) != null)
+				{
+					cells.Add(cell);
+				}
+			};
+
+			addCell(new IntVec3(0, 0, +1));
+			addCell(new IntVec3(0, 0, -1));
+
+			if (def.size.x == 1)
+			{
+				addCell(new IntVec3(+1, 0, 0));
+				addCell(new IntVec3(-1, 0, 0));
+			}
+			else
+			{
+				addCell(new IntVec3(+1, 0, +1));
+				addCell(new IntVec3(+1, 0, -1));
+				addCell(new IntVec3(+2, 0, 0));
+				addCell(new IntVec3(-1, 0, 0));
 			}
 
 			GenDraw.DrawFieldEdges(cells, new Color(0.35f, 1f, 0f));
 
 			Room[] rooms = RimFridge_WallBuilding.GatherRooms(
-				RimFridge_DoubleSidedWallBuilding.GatherAdjacentRegions(centre, Find.CurrentMap, rotation, def)
+				RimFridge_DoubleSidedWallBuilding.GatherAdjacentRegions(centre, map, rotation, def)
 			);
 
 			int roomCount = rooms.Length;
