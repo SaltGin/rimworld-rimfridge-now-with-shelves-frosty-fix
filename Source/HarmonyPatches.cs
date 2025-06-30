@@ -433,7 +433,13 @@ namespace RimFridge
 			  			return;
 					}
 
-					if (!FridgeCacheFast.multiSidedCache[__instance.map].TryGetValue(__instance.dest, out RimFridge_MultiSidedWallBuilding multiSided))
+					if (
+						!FridgeCacheFast.multiSidedCache[__instance.map].TryGetValue(
+							__instance.dest,
+							out RimFridge_MultiSidedWallBuilding multiSided
+						)
+						|| multiSided.prisonCellSidesToAvoid == null
+					)
 					{
 						return;
 					}
