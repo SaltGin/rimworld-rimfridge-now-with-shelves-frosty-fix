@@ -561,6 +561,7 @@ namespace RimFridge
 			if (!this.Spawned)
 			{
 				this.prisonCellSidesToAvoid = null;
+				this.pathFindCostCells = null;
 				return;
 			}
 
