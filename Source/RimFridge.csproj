@@ -17,6 +17,7 @@
 		<Reference Include="System.Xml"></Reference>
 		<Reference Include="0Harmony"></Reference>
 		<Reference Include="Assembly-CSharp"></Reference>
+		<Reference Include="Unity.Collections"></Reference>
 		<Reference Include="UnityEngine"></Reference>
 		<Reference Include="UnityEngine.CoreModule"></Reference>
 		<Reference Include="UnityEngine.IMGUIModule"></Reference>
