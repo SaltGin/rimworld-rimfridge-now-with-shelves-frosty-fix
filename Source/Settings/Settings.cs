@@ -222,6 +222,9 @@ namespace RimFridge
 			Widgets.CheckboxLabeled(new Rect(0, 210, 300, 30), "RimFridge.UglyStackAppearance".Translate(), ref Settings.uglyStackAppearance);
 			TooltipHandler.TipRegion(new Rect(0, 210, 300, 30), "RimFridge.UglyStackAppearanceDescription".Translate());
 
+			Widgets.CheckboxLabeled(new Rect(330, 140, 300, 30), "RimFridge.WallFridgesBlockLight".Translate(), ref Settings.wallFridgesBlockLight);
+			TooltipHandler.TipRegion(new Rect(330, 140, 300, 30), "RimFridge.WallFridgesBlockLightDescription".Translate());
+
 			Widgets.Label(new Rect(0, 240, 300, 30), "RimFridge.DefaultMaximumItemsPerCellSetting".Translate(Settings.defaultMaximumItemsPerCell));
 			TooltipHandler.TipRegion(new Rect(0, 240, 300, 30), "RimFridge.DefaultMaximumItemsPerCellSettingDescription".Translate());
 
