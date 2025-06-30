@@ -36,6 +36,8 @@ namespace RimFridge
 
 			RimFridgeSettingsUtil.ApplyFactor(Settings.PowerFactor.AsFloat);
 
+			Settings.ReifyLoadedGameDependentSettings();
+
 			if (this.backwardsCompatibilityVersionForCurrentSave == 0)
 			{
 				SettingsController.Unpatch(typeof(HacksForCompatibility.ChangeTheClassOfOldWallFridges));

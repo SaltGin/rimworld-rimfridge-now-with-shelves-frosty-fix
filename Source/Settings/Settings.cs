@@ -306,6 +306,7 @@ namespace RimFridge
 		public static int defaultMaximumItemsPerCell;
 		public static bool enableFrostyBeverages;
 		public static bool uglyStackAppearance;
+		public static bool wallFridgesBlockLight;
 		public static int prisonCellSideAvoidanceStrength;
 		/* Making this a List causes access to be O(n), but we want to maintain
 			the order the patches were loaded in. */
@@ -331,6 +332,7 @@ namespace RimFridge
 			Scribe_Values.Look(ref defaultMaximumItemsPerCell, "RimFridge.DefaultMaximumItemsPerCell", 3, false);
 			Scribe_Values.Look(ref enableFrostyBeverages, "RimFridge.EnableFrostyBeverages", true, false);
 			Scribe_Values.Look(ref uglyStackAppearance, "RimFridge.UglyStackAppearance", false, false);
+			Scribe_Values.Look(ref wallFridgesBlockLight, "RimFridge.WallFridgesBlockLight", false, false);
 			Scribe_Values.Look(ref prisonCellSideAvoidanceStrength, "RimFridge.PrisonCellSideAvoidanceStrength", -1, false);
 			Scribe_Collections.Look(ref forcedApplicationOfPatches, "RimFridge.ForcedApplicationOfPatches", LookMode.Deep);
 
@@ -412,6 +414,8 @@ namespace RimFridge
 
 			if (Current.Game != null)
 			{
+				ReifyLoadedGameDependentSettings();
+
 				if (oldPrisonCellSideAvoidancePathFindCost != RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost)
 				{
 					foreach (Map map in Find.Maps)
@@ -421,6 +425,37 @@ namespace RimFridge
 							foreach (RimFridge_DoubleSidedWallBuilding doubleSided in list)
 							{
 								doubleSided.ReactToChangeOfPrisonCellStatusForRoom();
+							}
+						}
+					}
+				}
+			}
+		}
+
+		public static void ReifyLoadedGameDependentSettings ()
+		{
+			bool blockLight = Settings.wallFridgesBlockLight;
+
+			DefDatabase<ThingDef>.GetNamed("RimFridge_SingleWallRefrigerator").blockLight = blockLight;
+			DefDatabase<ThingDef>.GetNamed("RimFridge_WallRefrigerator").blockLight = blockLight;
+
+			foreach (Map map in Find.Maps)
+			{
+				if (FridgeCacheFast.doubleSidedList.TryGetValue(map, out List<RimFridge_DoubleSidedWallBuilding> list))
+				{
+					GlowGrid glowGrid = map.glowGrid;
+
+					foreach (RimFridge_DoubleSidedWallBuilding doubleSided in list)
+					{
+						foreach (IntVec3 cell in doubleSided.OccupiedRect().Cells)
+						{
+							if (blockLight)
+							{
+								glowGrid.LightBlockerAdded(cell);
+							}
+							else
+							{
+								glowGrid.LightBlockerRemoved(cell);
 							}
 						}
 					}
