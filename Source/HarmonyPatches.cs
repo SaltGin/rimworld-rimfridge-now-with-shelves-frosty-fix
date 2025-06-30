@@ -399,6 +399,69 @@ namespace RimFridge
 					return isSociallyProper;
 				}
 			}
+
+			[HarmonyPatch(
+				typeof(PathGridDoorsBlockedJob),
+				nameof(PathGridDoorsBlockedJob.Execute),
+				new Type[0]
+			)]
+			public static class DissuadeColonistsFromPathingToWallFridgesViaPrisonCells
+			{
+				[HarmonyPostfix]
+				public static void AddWallFridgePathCostProviderCosts (
+					PathGridDoorsBlockedJob __instance
+				)
+				{
+					Pawn pawn;
+
+					if ((pawn = __instance.pawn) == null)
+					{
+						return;
+					}
+
+					if (
+						/* If they have no faction they don't care. */
+						   pawn.Faction is not {} faction
+						/* If they don't belong to the player's faction they don't care. */
+						|| !faction.IsPlayer
+						/* If they're not free they don't care. */
+						|| pawn.HostFaction != null
+						/* If they're a slave they don't care. */
+						|| pawn.IsSlave
+					)
+					{
+			  			return;
+					}
+
+					if (!FridgeCacheFast.doubleSidedCache[__instance.map].TryGetValue(__instance.dest, out RimFridge_DoubleSidedWallBuilding doubleSided))
+					{
+						return;
+					}
+
+					Room roomOfPawn = __instance.map.regionGrid.GetValidRegionAt(pawn.Position).Room;
+
+					/* If they're already in one of the prison-cells there's no call for discouraging them from entering them. */
+					for (int index = 0; index < doubleSided.prisonCellSidesToAvoid.Length; ++index)
+					{
+						if (roomOfPawn == doubleSided.prisonCellSidesToAvoid[index])
+						{
+							return;
+						}
+					}
+
+					ushort pathCost = RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost;
+
+					ref Unity.Collections.NativeArray<ushort> providerCost = ref __instance.providerCost;
+
+					int[] pathFindCostCells = doubleSided.pathFindCostCells;
+					int cellCount = pathFindCostCells.Length;
+
+					for (int index = 0; index < cellCount; ++index)
+					{
+						providerCost[pathFindCostCells[index]] += pathCost;
+					}
+				}
+			}
 		}
 	}
 

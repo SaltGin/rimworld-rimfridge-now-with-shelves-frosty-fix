@@ -14,6 +14,7 @@ namespace RimFridge
 		public static Type appliedHandleTheProprietyOfWallFridgesPatch;
 		public static Type appliedMungeTrueCenterOfItemsInFridgesPatch;
 		public static Type appliedMakeTheStackCountLabelsReadablePatch;
+		public static Type appliedDissuadeColonistsFromPathingToWallFridgesViaPrisonCellsPatch;
 
 		public SettingsController (ModContentPack content) : base(content)
 		{
@@ -388,6 +389,27 @@ namespace RimFridge
 				)
 			);
 
+			if (RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost == 0)
+			{
+				if (SettingsController.appliedDissuadeColonistsFromPathingToWallFridgesViaPrisonCellsPatch != null)
+				{
+					SettingsController.Unpatch(SettingsController.appliedMungeTrueCenterOfItemsInFridgesPatch);
+					SettingsController.appliedDissuadeColonistsFromPathingToWallFridgesViaPrisonCellsPatch = null;
+				}
+			}
+			else
+			{
+				if (SettingsController.appliedDissuadeColonistsFromPathingToWallFridgesViaPrisonCellsPatch == null)
+				{
+					SettingsController.Patch(
+						typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.HandleTheProprietyOfWallFridges.DissuadeColonistsFromPathingToWallFridgesViaPrisonCells)
+					);
+					SettingsController.appliedDissuadeColonistsFromPathingToWallFridgesViaPrisonCellsPatch = (
+						typeof(EnsureThatItemsInAFridgeCanBeReachedByPawns.HandleTheProprietyOfWallFridges.DissuadeColonistsFromPathingToWallFridgesViaPrisonCells)
+					);
+				}
+			}
+
 			if (Current.Game != null)
 			{
 				if (oldPrisonCellSideAvoidancePathFindCost != RimFridge_DoubleSidedWallBuilding.prisonCellSideAvoidancePathFindCost)
@@ -398,7 +420,7 @@ namespace RimFridge
 						{
 							foreach (RimFridge_DoubleSidedWallBuilding doubleSided in list)
 							{
-								doubleSided.RectifyPrisonCellSideToAvoidStatus();
+								doubleSided.ReactToChangeOfPrisonCellStatusForRoom();
 							}
 						}
 					}

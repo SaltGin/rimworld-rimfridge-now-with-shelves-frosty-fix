@@ -383,6 +383,8 @@ namespace RimFridge
 			int possibleCount = possibleRegions.Length;
 			int uniqueCount = 0;
 
+			Region[] regionsScratch = new Region[6];
+
 			for (int regionIndex = 0; regionIndex < possibleCount; ++regionIndex)
 			{
 				Region region = possibleRegions[regionIndex];
@@ -394,13 +396,13 @@ namespace RimFridge
 
 				for (int uniqueIndex = 0; uniqueIndex < uniqueCount; ++uniqueIndex)
 				{
-					if (possibleRegions[uniqueIndex] == region)
+					if (regionsScratch[uniqueIndex] == region)
 					{
 						goto handledRegion;
 					}
 				}
 
-				possibleRegions[uniqueCount++] = region;
+				regionsScratch[uniqueCount++] = region;
 			handledRegion: {}
 			}
 
@@ -408,7 +410,7 @@ namespace RimFridge
 
 			for (int index = 0; index < uniqueCount; ++index)
 			{
-				regions[index] = possibleRegions[index];
+				regions[index] = regionsScratch[index];
 			}
 
 			Room[] rooms = new Room[uniqueCount];
@@ -525,72 +527,45 @@ namespace RimFridge
 		}
 	}
 
-	public class RimFridge_DoubleSidedWallBuilding : RimFridge_WallBuilding, IPathFindCostProvider
+	public class RimFridge_DoubleSidedWallBuilding : RimFridge_WallBuilding
 	{
 		public static ushort prisonCellSideAvoidancePathFindCost;
 
-		internal CellRect pathFindCostCellRect;
+		internal int[] pathFindCostCells;
 
-		/* If this double-sided wall-fridge is between
-		   a room that is a prison-cell and a room that is not a prison-cell
-		   this will be a reference to the prison-cell, otherwise it will be null.
+		/* If this multi-sided wall-fridge is between
+		   prison-cells and non-prison-cells
+		   this will be an array of the prison-cells otherwise it will be null.
 		   If prisonCellSideAvoidancePathFindCost is zero this will be null
 		   as it does not matter. */
-		internal Room prisonCellSideToAvoid;
+		internal Room[] prisonCellSidesToAvoid;
 
 		public RimFridge_DoubleSidedWallBuilding () : base()
 		{}
 
-		public ushort PathFindCostFor (Pawn pawn)
-		{
-			/* This is the fast-path. */
-			if (this.prisonCellSideToAvoid == null)
-			{
-				return 0;
-			}
-
-			/* This is the very-slightly-less-fast-path. */
-			if (pawn.jobs?.curDriver == null)
-			{
-				return 0;
-			}
-
-			if (
-				/* If they have no faction they don't care. */
-				   pawn.Faction is not {} faction
-				/* If they don't belong to the player's faction they don't care. */
-				|| !faction.IsPlayer
-				/* If they're not free they don't care. */
-				|| pawn.HostFaction != null
-				/* If they're a slave they don't care. */
-				|| pawn.IsSlave
-				/* If they're already in the prison-cell there's no call for discouraging them from entering it. */
-				|| this.Map.regionGrid.GetValidRegionAt(pawn.Position).Room == this.prisonCellSideToAvoid
-			)
-			{
-	  			return 0;
-			}
-
-			return prisonCellSideAvoidancePathFindCost;
-		}
-
-		/* This is for IPathFindCostProvider, which we use to discourage pawns
-		   from using the socially-improper side if desired,
-		   hence why the occupied-rect extends past the fridge. */
-		public CellRect GetOccupiedRect ()
-		{
-			return this.pathFindCostCellRect;
-		}
-
 		public override void ReactToChangeOfRegionsAndRooms ()
 		{
-			base.ReactToChangeOfRegionsAndRooms();
-			this.RectifyPrisonCellSideToAvoidStatus();
+			if (!this.Spawned)
+			{
+				this.rooms = new Room[0];
+				return;
+			}
+
+			Region[] regions = this.GatherAdjacentRegions();
+			this.rooms = GatherRooms(regions);
+			this.RectifyPrisonCellSidesToAvoidStatus(regions);
 		}
 
 		public void ReactToChangeOfPrisonCellStatusForRoom ()
 		{
-			this.RectifyPrisonCellSideToAvoidStatus();
+			if (!this.Spawned)
+			{
+				this.prisonCellSidesToAvoid = null;
+				return;
+			}
+
+			Region[] regions = prisonCellSideAvoidancePathFindCost != 0 ? this.GatherAdjacentRegions() : null;
+			this.RectifyPrisonCellSidesToAvoidStatus(regions);
 		}
 
 		public override void SpawnSetup (Map map, bool respawningAfterLoad)
@@ -625,167 +600,219 @@ namespace RimFridge
 		public static Region[] GatherAdjacentRegions (IntVec3 cell, Map map, Rot4 rotatedBy, ThingDef def)
 		{
 			Region[] regions;
+			Region[] regionGrid = map.regionGrid.DirectGrid;
 
-			int sizeX = def.size.x - 1;
+			/* Here we very deliberately query the region-grid in row-major order
+			   for a better memory-access pattern. */
 
-			int rotation = rotatedBy.AsInt;
+			/* Be aware that we depend on the positions of the cells within the
+			   returned array in `RectifyPrisonCellSidesToAvoidStatus`. */
 
-			if (sizeX == 0)
+			int sizeX = map.Size.x;
+			int cellIndex;
+
+			if (def.size.x == 1)
 			{
-				IntVec3 oppositeCell = cell;
-
-				if ((rotation & 1) == 0)
-				{
-				/* North or south. */
-					cell.z += rotation == 0 ? +1 : -1;
-					oppositeCell.z += rotation == 0 ? -1 : +1;
-				}
-				else
-				{
-				/* East or west. */
-					cell.x += rotation == 1 ? +1 : -1;
-					oppositeCell.x += rotation == 1 ? -1 : +1;
-				}
-
-				regions = new Region[2];
-				regions[0] = map.regionGrid.GetValidRegionAt(cell);
-				regions[1] = map.regionGrid.GetValidRegionAt(oppositeCell);
+				regions = new Region[4];
+				/*
+					 D
+					B C
+					 A
+				*/
+				/* A */ regions[0] = regionGrid[cellIndex = (cell.z - 1) * sizeX + cell.x];
+				/* B */ regions[1] = regionGrid[cellIndex += sizeX - 1];
+				/* C */ regions[2] = regionGrid[cellIndex += 2];
+				/* D */ regions[3] = regionGrid[cellIndex += sizeX - 1];
 			}
 			else
 			{
-				IntVec3 oppositeCell = cell;
-				IntVec3 adjacentCell;
-				IntVec3 diagonalCell;
+				regions = new Region[6];
+				int rotation = rotatedBy.AsInt;
 
 				if ((rotation & 1) == 0)
 				{
 				/* North or south. */
-					cell.z += rotation == 0 ? +1 : -1;
-					oppositeCell.z += rotation == 0 ? -1 : +1;
-					adjacentCell = cell;
-					adjacentCell.x += rotation == 0 ? +1 : -1;
-					diagonalCell = oppositeCell;
-					diagonalCell.x += rotation == 0 ? +1 : -1;
+					/*
+						 EF
+						C  D
+						 AB
+					*/
+					/* A */ regions[0] = regionGrid[cellIndex = (cell.z - 1) * sizeX + cell.x - (rotation >> 1)];
+					/* B */ regions[1] = regionGrid[++cellIndex];
+					/* C */ regions[2] = regionGrid[cellIndex += sizeX - 2];
+					/* D */ regions[3] = regionGrid[cellIndex += 3];
+					/* E */ regions[4] = regionGrid[cellIndex += sizeX - 2];
+					/* F */ regions[5] = regionGrid[++cellIndex];
 				}
 				else
 				{
 				/* East or west. */
-					cell.x += rotation == 1 ? +1 : -1;
-					oppositeCell.x += rotation == 1 ? -1 : +1;
-					adjacentCell = cell;
-					adjacentCell.z += rotation == 1 ? -1 : +1;
-					diagonalCell = oppositeCell;
-					diagonalCell.z += rotation == 1 ? -1 : +1;
+					/*
+						 F
+						E D
+						B C
+						 A
+					*/
+					/* A */ regions[0] = regionGrid[cellIndex = (cell.z - (rotation == 1 ? 2 : 1)) * sizeX + cell.x];
+					/* B */ regions[1] = regionGrid[cellIndex += sizeX - 1];
+					/* C */ regions[2] = regionGrid[cellIndex += 2];
+					/* D */ regions[3] = regionGrid[cellIndex += sizeX];
+					/* E */ regions[4] = regionGrid[cellIndex -= 2];
+					/* F */ regions[5] = regionGrid[cellIndex += sizeX + 1];
 				}
-
-				regions = new Region[4];
-				regions[0] = map.regionGrid.GetValidRegionAt(cell);
-				regions[1] = map.regionGrid.GetValidRegionAt(adjacentCell);
-				regions[2] = map.regionGrid.GetValidRegionAt(oppositeCell);
-				regions[3] = map.regionGrid.GetValidRegionAt(diagonalCell);
 			}
 
 			return regions;
 		}
 
-		public void RectifyPrisonCellSideToAvoidStatus ()
+		public void RectifyPrisonCellSidesToAvoidStatus (Region[] adjacentRegions)
 		{
 			if (prisonCellSideAvoidancePathFindCost == 0)
 			{
-				goto noPrisonCellSideToAvoid;
+				this.prisonCellSidesToAvoid = null;
+				this.pathFindCostCells = null;
+				return;
 			}
 
-			Room[] adjacentRooms = this.rooms;
-			int roomCount = adjacentRooms.Length;
-			Room prisonCell = null;
-			int state = 0;
+			byte roomMask = 0;
+			byte prisonCellMask = 0;
 
-			for (int index = 0; index < roomCount; ++index)
+			int regionCount = adjacentRegions.Length;
+			Region region;
+
+			for (int index = 0; index < regionCount; ++index)
 			{
-				Room room = adjacentRooms[index];
-				int isPrisonCell = room.IsPrisonCell ? 1 : 0;
-				prisonCell = isPrisonCell != 0 ? room : prisonCell;
-				state |= 1 << isPrisonCell;
+				region = adjacentRegions[index];
+
+				if (region != null && region.valid)
+				{
+					prisonCellMask |= (byte) ((region.Room.IsPrisonCell ? 1 : 0) << index);
+					roomMask |= (byte) (1 << index);
+				}
 			}
 
-			if (state == 0b11)
+			if ((prisonCellMask == 0) | (prisonCellMask == roomMask))
 			{
-				this.prisonCellSideToAvoid = prisonCell;
+				this.prisonCellSidesToAvoid = null;
+				this.pathFindCostCells = null;
+				return;
+			}
 
-				int sizeX = this.def.size.x - 1;
+			Room[] prisonCells = new Room[6];
+			int uniquePrisonCellCount = 0;
 
-				IntVec3 cell = this.Position;
-				Map map = this.Map;
-				IntVec3 adjacentCell;
+			for (int regionIndex = 0; regionIndex < regionCount; ++regionIndex)
+			{
+				if ((prisonCellMask & (1 << regionIndex)) != 0)
+				{
+					Room room = adjacentRegions[regionIndex].Room;
+
+					for (int roomIndex = 0; roomIndex < uniquePrisonCellCount; ++roomIndex)
+					{
+						if (prisonCells[roomIndex] == room)
+						{
+							goto prisonCellIsInArray;
+						}
+					}
+
+					prisonCells[uniquePrisonCellCount++] = room;
+				}
+			prisonCellIsInArray: {}
+			}
+
+			Room[] uniquePrisonCells = new Room[uniquePrisonCellCount];
+
+			for (int index = 0; index < uniquePrisonCellCount; ++index)
+			{
+				uniquePrisonCells[index] = prisonCells[index];
+			}
+
+			this.prisonCellSidesToAvoid = uniquePrisonCells;
+
+			int[] cells = new int[10];
+			int cellCount = 0;
+
+			IntVec3 cell = this.Position;
+			int sizeX = this.Map.Size.x;
+			int cellIndex;
+
+			if (this.def.size.x == 1)
+			{
+				/*
+					 D
+					B C
+					 A
+				*/
+				cellIndex = (cell.z - 1) * sizeX + cell.x - 1;
+				if ((prisonCellMask & 0b0011) != 0) {cells[cellCount++] = cellIndex;}
+				if ((prisonCellMask & 0b0001) != 0) {cells[cellCount++] = cellIndex + 1;}
+				if ((prisonCellMask & 0b0101) != 0) {cells[cellCount++] = cellIndex + 2;}
+				cellIndex += sizeX;
+				if ((prisonCellMask & 0b0010) != 0) {cells[cellCount++] = cellIndex;}
+				if ((prisonCellMask & 0b0100) != 0) {cells[cellCount++] = cellIndex + 2;}
+				cellIndex += sizeX;
+				if ((prisonCellMask & 0b1010) != 0) {cells[cellCount++] = cellIndex;}
+				if ((prisonCellMask & 0b1000) != 0) {cells[cellCount++] = cellIndex + 1;}
+				if ((prisonCellMask & 0b1100) != 0) {cells[cellCount++] = cellIndex + 2;}
+			}
+			else
+			{
 				int rotation = this.Rotation.AsInt;
 
 				if ((rotation & 1) == 0)
 				{
-				/* South or north. */
-					--cell.z;
-					/* If this is a south-facing 2x1 fridge, decrement x by 1.  */
-					cell.x -= (rotation == 2 ? 1 : 0) & sizeX;
-
-					if (cell.GetRoom(map) == prisonCell)
-					{
-						goto prisonCellIsSouth;
-					}
-					else if (sizeX != 0)
-					{
-						adjacentCell = cell;
-						++adjacentCell.x;
-
-						if (adjacentCell.GetRoom(map) == prisonCell)
-						{
-							goto prisonCellIsSouth;
-						}
-					}
-
-					cell.z += 2;
-				prisonCellIsSouth:
-					this.pathFindCostCellRect.minX = cell.x - 1;
-					this.pathFindCostCellRect.maxX = cell.x + sizeX + 1;
-					this.pathFindCostCellRect.minZ = cell.z;
-					this.pathFindCostCellRect.maxZ = cell.z;
+				/* North or south. */
+					/*
+						 EF
+						C  D
+						 AB
+					*/
+					cellIndex = (cell.z - 1) * sizeX + cell.x - (rotation == 0 ? 1 : 2);
+					if ((prisonCellMask & 0b000111) != 0) {cells[cellCount++] = cellIndex;}
+					if ((prisonCellMask & 0b000011) != 0) {cells[cellCount++] = cellIndex + 1; cells[cellCount++] = cellIndex + 2;}
+					if ((prisonCellMask & 0b001011) != 0) {cells[cellCount++] = cellIndex + 3;}
+					cellIndex += sizeX;
+					if ((prisonCellMask & 0b000100) != 0) {cells[cellCount++] = cellIndex;}
+					if ((prisonCellMask & 0b001000) != 0) {cells[cellCount++] = cellIndex + 3;}
+					cellIndex += sizeX;
+					if ((prisonCellMask & 0b110100) != 0) {cells[cellCount++] = cellIndex;}
+					if ((prisonCellMask & 0b110000) != 0) {cells[cellCount++] = cellIndex + 1; cells[cellCount++] = cellIndex + 2;}
+					if ((prisonCellMask & 0b111000) != 0) {cells[cellCount++] = cellIndex + 3;}
 				}
 				else
 				{
 				/* East or west. */
-					--cell.x;
-					/* If this is a east-facing 2x1 fridge, decrement z by 1.  */
-					cell.z -= (rotation == 1 ? 1 : 0) & sizeX;
-
-					if (cell.GetRoom(map) == prisonCell)
-					{
-						goto prisonCellIsWest;
-					}
-					else if (sizeX != 0)
-					{
-						adjacentCell = cell;
-						++adjacentCell.z;
-
-						if (adjacentCell.GetRoom(map) == prisonCell)
-						{
-							goto prisonCellIsWest;
-						}
-					}
-
-					cell.x += 2;
-				prisonCellIsWest:
-					this.pathFindCostCellRect.minX = cell.x;
-					this.pathFindCostCellRect.maxX = cell.x;
-					this.pathFindCostCellRect.minZ = cell.z - 1;
-					this.pathFindCostCellRect.maxZ = cell.z + sizeX + 1;
+					/*
+						 F
+						E D
+						B C
+						 A
+					*/
+					cellIndex = (cell.z - (rotation == 1 ? 2 : 1)) * sizeX + cell.x - 1;
+					if ((prisonCellMask & 0b010011) != 0) {cells[cellCount++] = cellIndex;}
+					if ((prisonCellMask & 0b000001) != 0) {cells[cellCount++] = cellIndex + 1;}
+					if ((prisonCellMask & 0b001101) != 0) {cells[cellCount++] = cellIndex + 2;}
+					cellIndex += sizeX;
+					if ((prisonCellMask & 0b010010) != 0) {cells[cellCount++] = cellIndex;}
+					if ((prisonCellMask & 0b001100) != 0) {cells[cellCount++] = cellIndex + 2;}
+					cellIndex += sizeX;
+					if ((prisonCellMask & 0b010010) != 0) {cells[cellCount++] = cellIndex;}
+					if ((prisonCellMask & 0b001100) != 0) {cells[cellCount++] = cellIndex + 2;}
+					cellIndex += sizeX;
+					if ((prisonCellMask & 0b110010) != 0) {cells[cellCount++] = cellIndex;}
+					if ((prisonCellMask & 0b100000) != 0) {cells[cellCount++] = cellIndex + 1;}
+					if ((prisonCellMask & 0b101100) != 0) {cells[cellCount++] = cellIndex + 2;}
 				}
-
-				return;
 			}
-		noPrisonCellSideToAvoid:
-			this.prisonCellSideToAvoid = null;
-			this.pathFindCostCellRect.minX = 0;
-			this.pathFindCostCellRect.minZ = 0;
-			this.pathFindCostCellRect.maxX = 0;
-			this.pathFindCostCellRect.maxZ = 0;
+
+			int[] pathFindCostCells = new int[cellCount];
+
+			for (int index = 0; index < cellCount; ++index)
+			{
+				pathFindCostCells[index] = cells[index];
+			}
+
+			this.pathFindCostCells = pathFindCostCells;
 		}
 	}
 
