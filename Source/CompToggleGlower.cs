@@ -116,7 +116,8 @@ namespace RimFridge
 
 			if (Scribe.mode == LoadSaveMode.Saving)
 			{
-				Scribe_Values.Look(ref this.lightType, "lightType", FridgeLighting.LightType.Normal, true);
+				int lightType = (int) this.lightType;
+				Scribe_Values.Look(ref lightType, "lightType", (int) FridgeLighting.LightType.Normal, true);
 			}
 			else if (Scribe.mode == LoadSaveMode.LoadingVars)
 			{
@@ -124,20 +125,20 @@ namespace RimFridge
 				   and the active type was persisted via the `isDarklight` boolean,
 				   hence we use a light-type of 255 to migrate old glowers. */
 
-				byte lightType = 255;
-				Scribe_Values.Look(ref lightType, "lightType", (byte) 255);
+				int lightType = 255;
+				Scribe_Values.Look(ref lightType, "lightType", 255);
 
 				if (lightType == 255)
 				{
 					bool isDarklight = false;
 					Scribe_Values.Look(ref isDarklight, "isDarklight", false);
 
-					lightType = isDarklight ? (byte) FridgeLighting.LightType.Dark : (byte) FridgeLighting.LightType.Normal;
+					lightType = isDarklight ? (int) FridgeLighting.LightType.Dark : (int) FridgeLighting.LightType.Normal;
 				}
 
 				this.lightType = (FridgeLighting.LightType) (
-					  lightType <= (byte) FridgeLighting.LightType.Last
-					? lightType
+					  lightType <= (int) FridgeLighting.LightType.Last
+					? (byte) lightType
 					: (byte) FridgeLighting.LightType.Normal
 				);
 			}
