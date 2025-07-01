@@ -55,6 +55,8 @@ namespace RimFridge
 			Patch(typeof(PrisonCellChangeTracking.TrackChangeOfPrisonCellStatusForRoom));
 
 			base.GetSettings<Settings>();
+
+			Settings.SetDefaultSettings(this);
 		}
 
 		internal static void Patch (Type type)
@@ -279,19 +281,22 @@ namespace RimFridge
 		{
 			base.WriteSettings();
 
-			if (ShouldShowCompatibilitySettings)
+			if (guiState != null)
 			{
-				if (
-					!guiState.initialStateOfShouldForceApplicationOfPatches.SequenceEqual(
-						Settings.forcedApplicationOfPatches.Select(a => a.shouldForceApplication)
-					)
-				)
+				if (ShouldShowCompatibilitySettings)
 				{
-					ModsConfig.RestartFromChangedMods();
+					if (
+						!guiState.initialStateOfShouldForceApplicationOfPatches.SequenceEqual(
+							Settings.forcedApplicationOfPatches.Select(a => a.shouldForceApplication)
+						)
+					)
+					{
+						ModsConfig.RestartFromChangedMods();
+					}
 				}
-			}
 
-			guiState = null;
+				guiState = null;
+			}
 
 			Settings.Reify();
 		}
@@ -315,6 +320,9 @@ namespace RimFridge
 			the order the patches were loaded in. */
 		public static List<ApplicationOfPatch> forcedApplicationOfPatches;
 
+		internal static bool loadedSettings;
+		internal static int schemaVersion;
+
 		internal class ApplicationOfPatch : IExposable
 		{
 			public string patch;
@@ -330,13 +338,29 @@ namespace RimFridge
 		public override void ExposeData ()
 		{
 			base.ExposeData();
-			Scribe_Values.Look(ref(PowerFactor.AsString), "RimFridge.PowerFactor", "1.00", false);
-			Scribe_Values.Look(ref ActAsBeacon, "RimFridge.ActAsBeacon", false, false);
-			Scribe_Values.Look(ref defaultMaximumItemsPerCell, "RimFridge.DefaultMaximumItemsPerCell", 3, false);
-			Scribe_Values.Look(ref enableFrostyBeverages, "RimFridge.EnableFrostyBeverages", true, false);
-			Scribe_Values.Look(ref uglyStackAppearance, "RimFridge.UglyStackAppearance", false, false);
-			Scribe_Values.Look(ref wallFridgesBlockLight, "RimFridge.WallFridgesBlockLight", false, false);
-			Scribe_Values.Look(ref prisonCellSideAvoidanceStrength, "RimFridge.PrisonCellSideAvoidanceStrength", -1, false);
+
+			if (Scribe.mode == LoadSaveMode.LoadingVars)
+			{
+				loadedSettings = true;
+			}
+
+			if (Scribe.mode == LoadSaveMode.Saving)
+			{
+				int latestSchemaVersion = 1;
+				Scribe_Values.Look(ref latestSchemaVersion, "RimFridge.SchemaVersion", 0, true);
+			}
+			else
+			{
+				Scribe_Values.Look(ref schemaVersion, "RimFridge.SchemaVersion", 0, true);
+			}
+
+			Scribe_Values.Look(ref(PowerFactor.AsString), "RimFridge.PowerFactor", "1.00", true);
+			Scribe_Values.Look(ref ActAsBeacon, "RimFridge.ActAsBeacon", false, true);
+			Scribe_Values.Look(ref defaultMaximumItemsPerCell, "RimFridge.DefaultMaximumItemsPerCell", 3, true);
+			Scribe_Values.Look(ref enableFrostyBeverages, "RimFridge.EnableFrostyBeverages", true, true);
+			Scribe_Values.Look(ref uglyStackAppearance, "RimFridge.UglyStackAppearance", false, true);
+			Scribe_Values.Look(ref wallFridgesBlockLight, "RimFridge.WallFridgesBlockLight", false, true);
+			Scribe_Values.Look(ref prisonCellSideAvoidanceStrength, "RimFridge.PrisonCellSideAvoidanceStrength", -1, true);
 			Scribe_Collections.Look(ref forcedApplicationOfPatches, "RimFridge.ForcedApplicationOfPatches", LookMode.Deep);
 
 			if (Scribe.mode == LoadSaveMode.PostLoadInit)
@@ -344,6 +368,33 @@ namespace RimFridge
 				forcedApplicationOfPatches ??= new();
 				Reify();
 			}
+		}
+
+		public static void SetDefaultSettings (SettingsController mod)
+		{
+			if (Settings.loadedSettings)
+			{
+				/* v2.0.0 introduced an issue that caused the default settings
+				   to not get set when the player had no existing configuration for the mod.
+				   (ExposeData isn't called when a mod's settings are first created by the game).
+				   This meant that `defaultMaximumItemsPerCell` and `prisonCellSideAvoidanceStrength`
+				   would get saved as 0, so if either of them are zero we'll set the correct defaults,
+				   unless `schemaVersion` isn't zero, in which case we'll respect the user's configuration. */
+				if (schemaVersion != 0 || defaultMaximumItemsPerCell != 0 && prisonCellSideAvoidanceStrength != 0)
+				{
+					return;
+				}
+
+				Logger.Warning($"Broken mod options from v2.0.0-to-v2.0.2 detected. Overriding these settings: 'Enable Frosty Beverages'; 'Default maximum items per cell'; 'Prison-cell side avoidance strength'.");
+			}
+
+			Settings.loadedSettings = true;
+
+			defaultMaximumItemsPerCell = 3;
+			enableFrostyBeverages = true;
+			prisonCellSideAvoidanceStrength = -1;
+
+			mod.WriteSettings();
 		}
 
 		public static void Reify ()
