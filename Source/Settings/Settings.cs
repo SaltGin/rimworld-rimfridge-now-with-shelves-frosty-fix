@@ -315,6 +315,7 @@ namespace RimFridge
 		public static bool enableFrostyBeverages;
 		public static bool uglyStackAppearance;
 		public static bool wallFridgesBlockLight;
+		public static bool wallFridgesAreAirtight;
 		public static int prisonCellSideAvoidanceStrength;
 		/* Making this a List causes access to be O(n), but we want to maintain
 			the order the patches were loaded in. */
@@ -360,6 +361,7 @@ namespace RimFridge
 			Scribe_Values.Look(ref enableFrostyBeverages, "RimFridge.EnableFrostyBeverages", true, true);
 			Scribe_Values.Look(ref uglyStackAppearance, "RimFridge.UglyStackAppearance", false, true);
 			Scribe_Values.Look(ref wallFridgesBlockLight, "RimFridge.WallFridgesBlockLight", false, true);
+			Scribe_Values.Look(ref wallFridgesAreAirtight, "RimFridge.WallFridgesAreAirtight", true, true);
 			Scribe_Values.Look(ref prisonCellSideAvoidanceStrength, "RimFridge.PrisonCellSideAvoidanceStrength", -1, true);
 			Scribe_Collections.Look(ref forcedApplicationOfPatches, "RimFridge.ForcedApplicationOfPatches", LookMode.Deep);
 
@@ -392,6 +394,7 @@ namespace RimFridge
 
 			defaultMaximumItemsPerCell = 3;
 			enableFrostyBeverages = true;
+			wallFridgesAreAirtight = true;
 			prisonCellSideAvoidanceStrength = -1;
 
 			mod.WriteSettings();

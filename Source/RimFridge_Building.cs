@@ -468,6 +468,11 @@ namespace RimFridge
 			base.DeSpawn(mode);
 		}
 
+		public override bool IsAirtight
+		{
+			get => Settings.wallFridgesAreAirtight;
+		}
+
 		public override float GetTemperatureOfSurroundings (CompRefrigerator comp)
 		{
 			float totalTemperature = 0f;
