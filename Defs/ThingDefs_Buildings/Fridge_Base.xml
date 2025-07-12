@@ -45,6 +45,7 @@
 						<li>Drugs</li>
 						<li>EggsFertilized</li>
 						<li>EggsUnfertilized</li>
+						<li MayRequire="Ludeon.RimWorld.Odyssey">Fish</li>
 						<li>Foods</li>
 						<li>Medicine</li>
 						<li>PlantMatter</li>
