@@ -106,8 +106,13 @@ namespace RimFridge
 		{
 			this.lightType = type;
 			base.Props.glowColor = FridgeLighting.coloursByLightType[(uint) type];
+
 			base.parent.Map.glowGrid.DeRegisterGlower(this);
-			base.parent.Map.glowGrid.RegisterGlower(this);
+
+			if (this.ShouldBeLitNow)
+			{
+				base.parent.Map.glowGrid.RegisterGlower(this);
+			}
 		}
 
 		public override void PostExposeData ()

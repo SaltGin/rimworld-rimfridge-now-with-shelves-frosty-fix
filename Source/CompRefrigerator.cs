@@ -15,7 +15,7 @@ namespace RimFridge
 		public void PushTransferredAndGeneratedHeat (float energy, CompRefrigerator comp);
 	}
 
-	public sealed class CompRefrigerator : ThingComp
+	public sealed class CompRefrigerator : ThingComp, IThingGlower
 	{
 		public float desiredTemp;
 		public float currentTemp = 21f;
@@ -25,6 +25,8 @@ namespace RimFridge
 		private CompRefuelable refuelable => parent.GetComp<CompRefuelable>();
 
 		public bool ShouldBeActive => (powerTrader != null && powerTrader.PowerOn) || (refuelable != null && refuelable.HasFuel);
+
+		public bool ShouldBeLitNow () => this.ShouldBeActive;
 
 		public override IEnumerable<Gizmo> CompGetGizmosExtra ()
 		{
