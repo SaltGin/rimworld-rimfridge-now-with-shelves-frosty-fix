@@ -125,7 +125,7 @@ namespace RimFridge
 					List<Thing> thingList = thingGrid.ThingsListAtFast(cell);
 					int thingCount = thingList.Count;
 
-					if (thingCount > 1)
+					if (thingCount > 0)
 					{
 						HashSet<ThingDef> drinksBestColdDefs = this.drinksBestColdDefs;
 						int index = 0;
@@ -337,4 +337,5 @@ namespace RimFridge
 		}
 	}
 }
+
 
